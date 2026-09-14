@@ -2897,7 +2897,7 @@ body.cards-open .card-copy.is-compact,
     box-shadow: 0 14px 38px rgba(2, 8, 23, 0.52);
   }
   [data-theme="dark"] .bottom-nav button.active { background: #263650; }
-  .vocab-tools .vocab-undo:not([hidden]) {
+  .vocab-tools .vocab-undo {
     position: fixed;
     z-index: 9;
     right: 16px;

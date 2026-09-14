@@ -848,7 +848,11 @@ function renderVocabulary() {
   );
   $("#vocabNext").title = vocabLearnMode ? "Вивчено" : "Наступне слово";
   $("#vocabNext").disabled = !vocabLearnMode && vocabIndex === vocabOrder.length - 1;
-  $("#vocabUndo").hidden = !vocabLearnMode || vocabUndoStack.length === 0;
+  const canUndoVocabulary = vocabLearnMode && vocabUndoStack.length > 0;
+  $("#vocabUndo").disabled = !canUndoVocabulary;
+  $("#vocabUndo").title = canUndoVocabulary
+    ? "Скасувати останню відповідь"
+    : "Поки немає дій для скасування";
   renderVocabularyList();
   persistUiState();
 }
