@@ -948,8 +948,10 @@ $("#vocabShuffle").addEventListener("click", () => {
       const j = Math.floor(Math.random() * (i + 1));
       [vocabOrder[i], vocabOrder[j]] = [vocabOrder[j], vocabOrder[i]];
     }
+    vocabIndex = 0;
+  } else {
+    vocabIndex = vocabOrder.indexOf(currentId);
   }
-  vocabIndex = vocabOrder.indexOf(currentId);
   vocabFlipped = false;
   renderVocabulary();
 });
