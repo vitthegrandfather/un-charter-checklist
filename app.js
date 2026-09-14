@@ -59,6 +59,7 @@ let cards = [],
   order = [],
   cardIndex = 0,
   flipped = false,
+  cardRotation = 0,
   noteArticle = null,
   reviewQueue = [],
   reviewIndex = 0,
@@ -781,6 +782,7 @@ function renderCard() {
   $("#cardUk").textContent = c.uk;
   $("#cardDe").textContent = c.de;
   $("#flashcard").classList.toggle("flipped", flipped);
+  $("#flashcard .flashcard-inner").style.transform = `rotateX(${cardRotation}deg)`;
   $("#cardCounter").textContent = `${cardIndex + 1} / ${order.length}${cardIndex === 0 ? " · початок" : cardIndex === order.length - 1 ? " · кінець" : ""}`;
   $("#prevCard").classList.toggle("state-on", !flipped);
   $("#nextCard").classList.toggle("state-on", flipped);
@@ -799,6 +801,11 @@ function renderCard() {
   );
   trackPresence();
   persistUiState();
+}
+function flipCard(direction = 1) {
+  flipped = !flipped;
+  cardRotation += direction * 180;
+  renderCard();
 }
 function animateStudyCard(element, step) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -821,6 +828,7 @@ function moveCard(step) {
   if (next === cardIndex) return;
   cardIndex = next;
   flipped = false;
+  cardRotation = 0;
   renderCard();
   animateCard(step);
 }
@@ -831,6 +839,7 @@ function openArticle(n) {
     cards.findIndex((c) => c.n === n),
   );
   flipped = false;
+  cardRotation = 0;
   switchView("cards");
   renderCard();
 }
@@ -1031,16 +1040,13 @@ $("#noteDialog").addEventListener("close", () => {
   }
 });
 $("#flashcard").addEventListener("click", () => {
-  flipped = !flipped;
-  renderCard();
+  flipCard(1);
 });
 $("#prevCard").addEventListener("click", () => {
-  flipped = false;
-  renderCard();
+  flipCard(-1);
 });
 $("#nextCard").addEventListener("click", () => {
-  flipped = true;
-  renderCard();
+  flipCard(1);
 });
 $("#prevArticle").addEventListener("click", () => moveCard(-1));
 $("#nextArticle").addEventListener("click", () => moveCard(1));
@@ -1048,6 +1054,7 @@ $("#shuffleBtn").addEventListener("click", () => {
   order.sort(() => Math.random() - 0.5);
   cardIndex = 0;
   flipped = false;
+  cardRotation = 0;
   renderCard();
 });
 $("#cardLearned").addEventListener("click", () => learn(currentCard().n));
@@ -1065,6 +1072,7 @@ $("#startToday").addEventListener("click", () => {
   if (!order.length) order = cards.map((_, i) => i);
   cardIndex = 0;
   flipped = false;
+  cardRotation = 0;
   switchView("cards");
   renderCard();
 });
@@ -1200,14 +1208,11 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
   if (e.key === "ArrowLeft") moveCard(-1);
   if (e.key === "ArrowRight") moveCard(1);
-  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-    flipped = !flipped;
-    renderCard();
-  }
+  if (e.key === "ArrowUp") flipCard(-1);
+  if (e.key === "ArrowDown") flipCard(1);
   if (e.code === "Space") {
     e.preventDefault();
-    flipped = !flipped;
-    renderCard();
+    flipCard(1);
   }
 });
 applyTheme(document.documentElement.dataset.theme || "light");
