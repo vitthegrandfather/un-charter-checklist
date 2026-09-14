@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=11" />
+    <link rel="stylesheet" href="styles.css?v=15" />
   </head>
   <body>
     <a class="skip" href="#content">До вмісту</a>
@@ -36,6 +36,7 @@
             <nav class="tabs" aria-label="Режими навчання">
               <button class="tab active" data-view="tracker">Трекер</button
               ><button class="tab" data-view="cards">Картки</button
+              ><button class="tab" data-view="vocabulary">150 слів</button
               ><button class="tab" data-view="review">
                 Повторення <span id="reviewBadge">0</span></button
               ><button class="tab" data-view="ranking">Рейтинг</button>
@@ -85,6 +86,10 @@
             ><small>завершення всіх статей</small>
           </article>
         </div>
+        <button class="vocab-launch" id="vocabLaunch">
+          <span><small>Окремий набір · Мова фаху</small><strong>Вчити 150 ключових слів</strong></span>
+          <b>Почати →</b>
+        </button>
         <section class="today">
           <div>
             <span class="section-label">План на сьогодні</span>
@@ -154,6 +159,65 @@
           ><button class="learn-btn" id="cardLearned">Знаю ✓</button>
         </div>
         <p class="keyboard">↑ українська · ↓ німецька · ← → інша стаття · пробіл перевернути</p>
+      </section>
+      <section class="view vocabulary-view" id="vocabularyView">
+        <div class="vocab-hero">
+          <div>
+            <span class="section-label">Мова фаху · добірка зі Статуту</span>
+            <h2>150 ключових слів</h2>
+            <p>Українська → Deutsch. Натисніть на картку, щоб побачити переклад.</p>
+          </div>
+          <div class="vocab-progress" aria-label="Прогрес вивчення слів">
+            <strong><b id="vocabDone">0</b><span>/ 150</span></strong>
+            <small>вивчено</small>
+            <div class="bar"><i id="vocabProgressBar"></i></div>
+          </div>
+        </div>
+        <div class="vocab-toolbar">
+          <input id="vocabSearch" type="search" placeholder="Знайти українською або німецькою" aria-label="Пошук слів" />
+          <div class="filter-row" id="vocabFilters" aria-label="Фільтри слів">
+            <button class="active" data-vocab-filter="all">Усі</button>
+            <button data-vocab-filter="learning">Ще вчу</button>
+            <button data-vocab-filter="learned">Вивчені</button>
+          </div>
+          <button id="vocabFullscreen">На весь екран</button>
+          <button id="vocabShuffle">⇄ Перемішати</button>
+        </div>
+        <div class="vocab-study" id="vocabStudy">
+          <button id="vocabExitFullscreen" class="vocab-exit-fullscreen" aria-label="Вийти з повноекранного режиму">× Згорнути</button>
+          <div class="learn-mode-banner" id="vocabLearnBanner" hidden>
+            <strong>Режим вивчення</strong><span>← не знаю · ↑↓ переклад · знаю →</span>
+          </div>
+          <div class="vocab-card-stage">
+            <button id="vocabPrev" class="vocab-nav" aria-label="Попереднє слово">←</button>
+            <button id="vocabCard" class="vocab-card" aria-label="Перевернути картку">
+              <span class="vocab-card-inner">
+                <span class="vocab-face vocab-front"><small>Українська</small><strong id="vocabUk">Завантаження…</strong><em>Натисніть, щоб перевернути</em></span>
+                <span class="vocab-face vocab-back"><small>Deutsch</small><strong id="vocabDe"></strong><em>Натисніть, щоб перевернути</em></span>
+              </span>
+            </button>
+            <button id="vocabNext" class="vocab-nav" aria-label="Наступне слово">→</button>
+          </div>
+          <div class="vocab-card-footer">
+            <span id="vocabCounter">1 / 150</span>
+            <div>
+              <button id="vocabAgain">Ще повторити</button>
+              <button id="vocabKnown" class="learn-btn">Знаю ✓</button>
+            </div>
+          </div>
+          <div class="vocab-learn-mode-wrap">
+            <button id="vocabLearnMode" class="vocab-learn-mode" type="button" role="switch" aria-checked="false">
+              <span class="vocab-learn-switch" aria-hidden="true"><span></span></span>
+              <span class="vocab-learn-label"><strong>Режим вивчення</strong><small>← не знаю · знаю →</small></span>
+            </button>
+          </div>
+        </div>
+        <div class="vocab-list-head">
+          <div><span class="section-label">Швидкий перегляд</span><h3>Уся добірка</h3></div>
+          <span id="vocabShown">150 слів</span>
+        </div>
+        <div class="vocab-list" id="vocabList"></div>
+        <p class="empty" id="vocabEmpty">За цим запитом слів не знайдено.</p>
       </section>
       <section class="view" id="reviewView">
         <div class="study-head">
@@ -273,6 +337,7 @@
         <span>▦</span>Усі статті
       </button>
       <button data-bottom-view="cards"><span>▣</span>Картка</button>
+      <button data-bottom-view="vocabulary"><span>Аа</span>Слова</button>
       <button data-bottom-view="ranking"><span>★</span>Рейтинг</button>
       <button data-bottom-view="account"><span>●</span>Акаунт</button>
     </nav>
@@ -370,6 +435,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=14"></script>
+    <script src="app.js?v=18"></script>
   </body>
 </html>

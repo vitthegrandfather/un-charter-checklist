@@ -1,0 +1,150 @@
+Статут ООН	die Charta der Vereinten Nationen
+Організація Об’єднаних Націй (ООН)	die Vereinten Nationen (UN)
+міжнародне право	das Völkerrecht
+міжнародна організація	die internationale Organisation
+держава	der Staat
+держава-член	der Mitgliedstaat
+член Організації	das Mitglied der Organisation
+держава, що не є членом	der Nichtmitgliedstaat
+нація	die Nation
+народ	das Volk
+уряд	die Regierung
+представник	der Vertreter
+делегат	der Delegierte
+орган	das Organ
+головний орган	das Hauptorgan
+допоміжний орган	das Nebenorgan
+Генеральна Асамблея	die Generalversammlung
+Рада Безпеки	der Sicherheitsrat
+Економічна і Соціальна Рада	der Wirtschafts- und Sozialrat
+Рада з Опіки	der Treuhandrat
+Міжнародний Суд	der Internationale Gerichtshof
+Секретаріат	das Sekretariat
+Генеральний секретар	der Generalsekretär
+Військово-Штабний Комітет	der Generalstabsausschuss
+спеціалізована установа	die Sonderorganisation
+головна адміністративна посадова особа	der höchste Verwaltungsbeamte
+мета	das Ziel
+спільна мета	das gemeinsame Ziel
+принцип	der Grundsatz
+справедливість	die Gerechtigkeit
+рівноправність	die Gleichberechtigung
+суверенна рівність	die souveräne Gleichheit
+самовизначення народів	die Selbstbestimmung der Völker
+територіальна недоторканність	die territoriale Unversehrtheit
+політична незалежність	die politische Unabhängigkeit
+внутрішня компетенція держави	die innere Zuständigkeit eines Staates
+права і привілеї	die Rechte und Vorrechte
+права людини	die Menschenrechte
+основні свободи	die Grundfreiheiten
+право на самооборону	das Recht auf Selbstverteidigung
+індивідуальна самооборона	die individuelle Selbstverteidigung
+колективна самооборона	die kollektive Selbstverteidigung
+право голосу	das Stimmrecht
+зобов’язання	die Verpflichtung
+повноваження	die Befugnis
+відповідальність	die Verantwortung
+функція; завдання	die Aufgabe
+компетенція	die Zuständigkeit
+членство	die Mitgliedschaft
+прийом до Організації	die Aufnahme in die Organisation
+виключення з Організації	der Ausschluss aus der Organisation
+тимчасове позбавлення прав	der zeitweilige Entzug der Rechte
+рекомендація	die Empfehlung
+рішення; постанова	der Beschluss
+міжнародна угода	das internationale Übereinkommen
+договір	der Vertrag
+спеціальна угода	das Sonderabkommen
+конвенція	das Übereinkommen
+проєкт конвенції	der Entwurf eines Übereinkommens
+ратифікація	die Ratifizierung
+конституційна процедура	das Verfassungsrecht
+автентичний текст	der verbindliche Wortlaut
+завірена копія	die beglaubigte Abschrift
+архів	das Archiv
+міжнародний мир	der Weltfrieden
+міжнародна безпека	die internationale Sicherheit
+підтримання миру	die Wahrung des Friedens
+відновлення миру	die Wiederherstellung des Friedens
+загроза миру	die Bedrohung des Friedens
+порушення миру	der Friedensbruch
+акт агресії	die Angriffshandlung
+збройний напад	der bewaffnete Angriff
+погроза силою	die Androhung von Gewalt
+застосування сили	die Anwendung von Gewalt
+збройна сила	die Waffengewalt
+збройні сили	die Streitkräfte
+військово-повітряні сили	die Luftstreitkräfte
+морські сили	die Seestreitkräfte
+сухопутні сили	die Landstreitkräfte
+військові заходи	die militärischen Maßnahmen
+примусові заходи	die Zwangsmaßnahmen
+превентивні заходи	die Vorbeugungsmaßnahmen
+колективні заходи	die Kollektivmaßnahmen
+термінові заходи	die dringenden Maßnahmen
+демонстрація сили	die Demonstration
+блокада	die Blockade
+операція; застосування сил	der Einsatz
+контингент	das Kontingent
+готовність	die Bereitschaft
+ступінь готовності	der Bereitschaftsgrad
+чисельність	die Stärke
+право проходу	das Durchmarschrecht
+допомога; сприяння	der Beistand
+конфлікт; спір	die Streitigkeit
+сторона спору	die Streitpartei
+міжнародні незгоди	die internationalen Reibungen
+ситуація	die Situation
+мирні засоби	die friedlichen Mittel
+переговори	die Verhandlung
+розслідування; обстеження	die Untersuchung
+посередництво	die Vermittlung
+примирення	der Vergleich
+арбітражне рішення	der Schiedsspruch
+судове рішення	die gerichtliche Entscheidung
+регіональна установа	die regionale Einrichtung
+регіональна угода	die regionale Abmachung
+мирне врегулювання	die friedliche Beilegung
+врегулювання спору	die Beilegung einer Streitigkeit
+міжнародне співробітництво	die internationale Zusammenarbeit
+дружні відносини	die freundschaftlichen Beziehungen
+роззброєння	die Abrüstung
+регулювання озброєнь	die Rüstungsregelung
+бюджет	der Haushaltsplan
+бюджетне питання	die Haushaltsfrage
+витрати Організації	die Ausgaben der Organisation
+фінансова угода	die Finanzabmachung
+бюджетна угода	die Haushaltsabmachung
+адміністративний бюджет	der Verwaltungshaushalt
+розподільний ключ	der Verteilungsschlüssel
+голос	die Stimme
+голосування	die Abstimmung
+більшість	die Mehrheit
+більшість у дві третини	die Zweidrittelmehrheit
+присутні члени	die anwesenden Mitglieder
+процедурне питання	die Verfahrensfrage
+вибори	die Wahl
+постійний член	das ständige Mitglied
+непостійний член	das nichtständige Mitglied
+географічний розподіл місць	die geographische Verteilung der Sitze
+строк у два роки	die Amtszeit von zwei Jahren
+засідання	die Sitzung
+чергова щорічна сесія	die ordentliche Jahrestagung
+розрив дипломатичних відносин	der Abbruch der diplomatischen Beziehungen
+підтримувати мир і безпеку	den Frieden und die Sicherheit wahren
+відновлювати міжнародний мир	den Weltfrieden wiederherstellen
+запобігати загрозам	Bedrohungen verhüten
+усувати загрози	Bedrohungen beseitigen
+придушувати акти агресії	Angriffshandlungen unterdrücken
+розвивати дружні відносини	freundschaftliche Beziehungen entwickeln
+зміцнювати мир	den Frieden festigen
+сприяти повазі до прав людини	die Achtung der Menschenrechte fördern
+досягати мети	ein Ziel verwirklichen
+узгоджувати зусилля	die Bemühungen aufeinander abstimmen
+діяти відповідно до Статуту	im Einklang mit der Charta handeln
+сумлінно виконувати зобов’язання	Verpflichtungen nach Treu und Glauben erfüllen
+брати на себе зобов’язання	Verpflichtungen übernehmen
+випливати з членства	aus der Mitgliedschaft erwachsen
+утримуватися від застосування сили	die Anwendung von Gewalt unterlassen
+надавати допомогу	Beistand leisten
+вживати заходів	Maßnahmen ergreifen

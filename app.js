@@ -4,6 +4,7 @@ const ARTICLES = [
 ];
 const OLD_KEY = "un-charta-progress-v1",
   KEY = "un-charta-study-v2",
+  UI_KEY = "un-charta-ui-v1",
   THEME_KEY = "un-charta-theme-v1",
   AUTH_PROMPT_KEY = "un-charta-auth-prompt-seen-v1",
   DEADLINE = new Date("2026-10-12T00:00:00+03:00"),
@@ -24,10 +25,11 @@ const blankState = () => ({
   reviewLevel: {},
   studyDates: [],
   dailyPlans: {},
+  vocabLearned: [],
 });
 function normalize(raw = {}) {
   const s = Object.assign(blankState(), raw);
-  ["learned", "review", "hard", "studyDates"].forEach(
+  ["learned", "review", "hard", "studyDates", "vocabLearned"].forEach(
     (k) => (s[k] = Array.isArray(s[k]) ? s[k] : []),
   );
   s.difficulty =
@@ -46,6 +48,13 @@ let state = normalize(
     JSON.parse(localStorage.getItem(KEY) || "{}"),
   ),
 );
+let savedUi = (() => {
+  try {
+    return JSON.parse(localStorage.getItem(UI_KEY) || "{}");
+  } catch {
+    return {};
+  }
+})();
 let cards = [],
   order = [],
   cardIndex = 0,
@@ -62,7 +71,14 @@ let cards = [],
   onlineStudy = new Map(),
   realtimeChannel = null,
   lastPresenceSignature = "",
-  articleFilter = "all";
+  articleFilter = "all",
+  vocabulary = [],
+  vocabOrder = [],
+  vocabIndex = 0,
+  vocabFlipped = false,
+  vocabFilter = "all",
+  vocabLearnMode = false,
+  uiRestored = false;
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
     const d = new Date();
@@ -85,6 +101,21 @@ function save(action = true) {
   );
   renderAll();
   queueCloudSave();
+}
+function persistUiState(view) {
+  if (!uiRestored) return;
+  const activeView =
+    view || $(".view.active")?.id?.replace(/View$/, "") || "tracker";
+  const snapshot = {
+    view: activeView,
+    article: cards.length ? currentCard()?.n : null,
+    articleOrder: cards.length ? order : [],
+    vocabId: vocabulary.length ? currentVocab()?.id : null,
+    vocabOrder: vocabulary.length ? vocabOrder : [],
+    vocabLearnMode,
+  };
+  localStorage.setItem(UI_KEY, JSON.stringify(snapshot));
+  savedUi = snapshot;
 }
 function setCloudStatus(text) {
   $("#authBtn").title = text;
@@ -202,13 +233,16 @@ function readPresence() {
 async function trackPresence(force = false) {
   if (!realtimeChannel || !currentUser) return;
   const cardsOpen = $("#cardsView")?.classList.contains("active");
+  const vocabOpen = $("#vocabularyView")?.classList.contains("active");
   const article = cardsOpen && cards.length ? currentCard()?.n || null : null;
-  const signature = `${currentUser.id}:${article || "online"}`;
+  const activity = vocabOpen ? "vocabulary" : cardsOpen ? "article" : "online";
+  const signature = `${currentUser.id}:${activity}:${article || ""}`;
   if (!force && signature === lastPresenceSignature) return;
   lastPresenceSignature = signature;
   await realtimeChannel.track({
     user_id: currentUser.id,
     article,
+    activity,
     updated_at: new Date().toISOString(),
   });
 }
@@ -388,7 +422,7 @@ function todayPlan() {
 function renderMetrics() {
   const done = state.learned.length;
   $("#doneCount").textContent = done;
-  $("#progressBar").style.width = `${(done / ARTICLES.length) * 100}%`;
+  $("#progressBar").style.setProperty("--progress", done / ARTICLES.length);
   $("#streak").textContent = streak();
   $("#forecast").textContent = forecast();
   const goal = dailyGoal(),
@@ -472,6 +506,7 @@ function renderAll() {
   renderArticles();
   $("#reviewBadge").textContent = dueArticles().length;
   renderCard();
+  renderVocabulary();
   renderAccount();
 }
 const safe = (s) =>
@@ -515,6 +550,8 @@ function renderAccount() {
               const presence = onlineStudy.get(p.user_id);
               const liveText = presence?.article
                 ? `Зараз вчить статтю ${presence.article}`
+                : presence?.activity === "vocabulary"
+                  ? "Зараз вчить слова"
                 : presence
                   ? "Зараз на сайті"
                   : "";
@@ -525,7 +562,7 @@ function renderAccount() {
       : "<p>У рейтингу поки немає учасників.</p>"
     : "<p>Увійдіть, щоб побачити рейтинг групи.</p>";
 }
-function switchView(name) {
+function switchView(name, remember = true) {
   document.body.classList.toggle("cards-open", name === "cards");
   $$(".view").forEach((v) =>
     v.classList.toggle("active", v.id === `${name}View`),
@@ -537,6 +574,7 @@ function switchView(name) {
     b.classList.toggle("active", b.dataset.bottomView === name),
   );
   if (name === "review") startReview(false);
+  if (remember) persistUiState(name);
   trackPresence();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -578,6 +616,168 @@ async function loadCards() {
       "Не вдалося завантажити картки. Оновіть сторінку.";
   }
 }
+async function loadVocabulary() {
+  try {
+    const raw = await fetch("vocabulary.txt?v=1").then((r) => {
+      if (!r.ok) throw Error();
+      return r.text();
+    });
+    vocabulary = raw
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map((line, id) => {
+        const [uk, de] = line.split("\t");
+        return { id, uk: uk?.trim(), de: de?.trim() };
+      })
+      .filter((word) => word.uk && word.de);
+    vocabOrder = vocabulary.map((word) => word.id);
+    vocabIndex = 0;
+    renderVocabulary();
+  } catch (e) {
+    $("#vocabUk").textContent = "Не вдалося завантажити слова.";
+  }
+}
+function restoreUiState() {
+  const validViews = new Set([
+    "tracker",
+    "cards",
+    "vocabulary",
+    "review",
+    "ranking",
+    "account",
+  ]);
+  if (
+    Array.isArray(savedUi.articleOrder) &&
+    savedUi.articleOrder.length &&
+    savedUi.articleOrder.every(
+      (index) => Number.isInteger(index) && index >= 0 && index < cards.length,
+    )
+  )
+    order = [...savedUi.articleOrder];
+  const articlePosition = order.findIndex(
+    (index) => cards[index]?.n === savedUi.article,
+  );
+  if (articlePosition >= 0) cardIndex = articlePosition;
+  if (
+    Array.isArray(savedUi.vocabOrder) &&
+    savedUi.vocabOrder.length &&
+    savedUi.vocabOrder.every(
+      (id) => Number.isInteger(id) && id >= 0 && id < vocabulary.length,
+    )
+  )
+    vocabOrder = [...new Set(savedUi.vocabOrder)];
+  vocabLearnMode = Boolean(savedUi.vocabLearnMode);
+  const vocabPosition = vocabOrder.indexOf(savedUi.vocabId);
+  if (vocabPosition >= 0) vocabIndex = vocabPosition;
+  const view = validViews.has(savedUi.view) ? savedUi.view : "tracker";
+  uiRestored = true;
+  switchView(view, true);
+  renderCard();
+  renderVocabulary();
+}
+function currentVocab() {
+  return vocabulary[vocabOrder[vocabIndex]];
+}
+function renderVocabulary() {
+  if (!vocabulary.length) return;
+  vocabIndex = Math.max(0, Math.min(vocabIndex, vocabOrder.length - 1));
+  const word = currentVocab();
+  $("#vocabUk").textContent = word.uk;
+  $("#vocabDe").textContent = word.de;
+  $("#vocabCard").classList.toggle("flipped", vocabFlipped);
+  $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}${vocabLearnMode ? " · вивчення" : ""}`;
+  $("#vocabPrev").disabled = !vocabLearnMode && vocabIndex === 0;
+  $("#vocabNext").disabled =
+    !vocabLearnMode && vocabIndex === vocabOrder.length - 1;
+  $("#vocabPrev").textContent = vocabLearnMode ? "← Не знаю" : "←";
+  $("#vocabNext").textContent = vocabLearnMode ? "Знаю →" : "→";
+  $("#vocabPrev").setAttribute(
+    "aria-label",
+    vocabLearnMode ? "Не знаю" : "Попереднє слово",
+  );
+  $("#vocabNext").setAttribute(
+    "aria-label",
+    vocabLearnMode ? "Знаю" : "Наступне слово",
+  );
+  $("#vocabStudy").classList.toggle("learn-mode", vocabLearnMode);
+  $("#vocabLearnBanner").hidden = !vocabLearnMode;
+  $("#vocabLearnMode").setAttribute("aria-checked", String(vocabLearnMode));
+  $("#vocabLearnMode").setAttribute(
+    "aria-label",
+    vocabLearnMode ? "Вимкнути режим вивчення" : "Увімкнути режим вивчення",
+  );
+  const learned = state.vocabLearned.includes(word.id);
+  $("#vocabKnown").textContent = vocabLearnMode
+    ? "Знаю →"
+    : learned
+      ? "✓ Вивчено · скасувати"
+      : "Знаю ✓";
+  $("#vocabAgain").textContent = vocabLearnMode ? "← Не знаю" : "Ще повторити";
+  $("#vocabKnown").classList.toggle("state-on", learned);
+  const done = state.vocabLearned.filter((id) => id < vocabulary.length).length;
+  $("#vocabDone").textContent = done;
+  $("#vocabProgressBar").style.setProperty(
+    "--progress",
+    done / vocabulary.length,
+  );
+  renderVocabularyList();
+  persistUiState();
+}
+function renderVocabularyList() {
+  if (!vocabulary.length) return;
+  const query = $("#vocabSearch").value.trim().toLocaleLowerCase();
+  const shown = vocabulary.filter((word) => {
+    const learned = state.vocabLearned.includes(word.id);
+    return (
+      (!query ||
+        word.uk.toLocaleLowerCase().includes(query) ||
+        word.de.toLocaleLowerCase().includes(query)) &&
+      (vocabFilter === "all" ||
+        (vocabFilter === "learned" && learned) ||
+        (vocabFilter === "learning" && !learned))
+    );
+  });
+  $("#vocabShown").textContent = `${shown.length} слів`;
+  $("#vocabList").innerHTML = shown
+    .map(
+      (word) =>
+        `<button class="vocab-row${state.vocabLearned.includes(word.id) ? " learned" : ""}" data-vocab-id="${word.id}"><span>${safe(word.uk)}</span><strong>${safe(word.de)}</strong><i>${state.vocabLearned.includes(word.id) ? "✓" : ""}</i></button>`,
+    )
+    .join("");
+  $("#vocabEmpty").style.display = shown.length ? "none" : "block";
+}
+function moveVocabulary(step) {
+  const next = Math.max(0, Math.min(vocabIndex + step, vocabOrder.length - 1));
+  if (next === vocabIndex) return;
+  vocabIndex = next;
+  vocabFlipped = false;
+  renderVocabulary();
+  animateStudyCard($("#vocabCard"), step);
+}
+function setVocabLearned(id, value = !state.vocabLearned.includes(id)) {
+  state.vocabLearned = state.vocabLearned.filter((wordId) => wordId !== id);
+  if (value) state.vocabLearned.push(id);
+  save();
+}
+function gradeVocabulary(known) {
+  const word = currentVocab();
+  state.vocabLearned = state.vocabLearned.filter((id) => id !== word.id);
+  if (known) state.vocabLearned.push(word.id);
+  if (vocabLearnMode) {
+    vocabOrder.splice(vocabIndex, 1);
+    if (!known) vocabOrder.push(word.id);
+    if (!vocabOrder.length) {
+      vocabLearnMode = false;
+      vocabOrder = vocabulary.map((item) => item.id);
+      vocabIndex = 0;
+    } else if (vocabIndex >= vocabOrder.length) vocabIndex = 0;
+    vocabFlipped = false;
+    save();
+  } else {
+    save();
+    moveVocabulary(1);
+  }
+}
 function currentCard() {
   return cards[order[cardIndex]];
 }
@@ -605,10 +805,11 @@ function renderCard() {
     b.classList.toggle("state-on", state.difficulty[c.n] === b.dataset.level),
   );
   trackPresence();
+  persistUiState();
 }
-function animateCard(step) {
+function animateStudyCard(element, step) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  $("#flashcard").animate(
+  element.animate(
     [
       {
         opacity: 0.35,
@@ -616,8 +817,11 @@ function animateCard(step) {
       },
       { opacity: 1, transform: "translateX(0)" },
     ],
-    { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+    { duration: 140, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
   );
+}
+function animateCard(step) {
+  animateStudyCard($("#flashcard"), step);
 }
 function moveCard(step) {
   const next = Math.max(0, Math.min(cardIndex + step, order.length - 1));
@@ -693,6 +897,7 @@ $("#homeBtn").addEventListener("click", () => {
   renderArticles();
   switchView("tracker");
 });
+$("#vocabLaunch").addEventListener("click", () => switchView("vocabulary"));
 $$(".bottom-nav button").forEach((b) =>
   b.addEventListener("click", () => switchView(b.dataset.bottomView)),
 );
@@ -733,6 +938,69 @@ $("#filterRow").addEventListener("click", (e) => {
   );
   renderArticles();
 });
+$("#vocabSearch").addEventListener("input", renderVocabularyList);
+$("#vocabFilters").addEventListener("click", (e) => {
+  const button = e.target.closest("[data-vocab-filter]");
+  if (!button) return;
+  vocabFilter = button.dataset.vocabFilter;
+  $$("#vocabFilters button").forEach((item) =>
+    item.classList.toggle("active", item === button),
+  );
+  renderVocabularyList();
+});
+$("#vocabList").addEventListener("click", (e) => {
+  const row = e.target.closest("[data-vocab-id]");
+  if (!row) return;
+  const id = +row.dataset.vocabId;
+  vocabOrder = vocabulary.map((word) => word.id);
+  vocabIndex = vocabOrder.indexOf(id);
+  vocabFlipped = false;
+  renderVocabulary();
+  $("#vocabCard").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+$("#vocabCard").addEventListener("click", () => {
+  vocabFlipped = !vocabFlipped;
+  renderVocabulary();
+});
+$("#vocabPrev").addEventListener("click", () =>
+  vocabLearnMode ? gradeVocabulary(false) : moveVocabulary(-1),
+);
+$("#vocabNext").addEventListener("click", () =>
+  vocabLearnMode ? gradeVocabulary(true) : moveVocabulary(1),
+);
+$("#vocabKnown").addEventListener("click", () =>
+  vocabLearnMode
+    ? gradeVocabulary(true)
+    : setVocabLearned(currentVocab().id),
+);
+$("#vocabAgain").addEventListener("click", () => gradeVocabulary(false));
+$("#vocabLearnMode").addEventListener("click", () => {
+  vocabLearnMode = !vocabLearnMode;
+  vocabOrder = vocabLearnMode
+    ? vocabulary
+        .filter((word) => !state.vocabLearned.includes(word.id))
+        .map((word) => word.id)
+    : vocabulary.map((word) => word.id);
+  if (!vocabOrder.length) vocabOrder = vocabulary.map((word) => word.id);
+  if (vocabLearnMode) vocabOrder.sort(() => Math.random() - 0.5);
+  vocabIndex = 0;
+  vocabFlipped = false;
+  renderVocabulary();
+});
+$("#vocabShuffle").addEventListener("click", () => {
+  vocabOrder.sort(() => Math.random() - 0.5);
+  vocabIndex = 0;
+  vocabFlipped = false;
+  renderVocabulary();
+});
+$("#vocabFullscreen").addEventListener("click", async () => {
+  if (document.fullscreenElement === $("#vocabStudy"))
+    await document.exitFullscreen();
+  else await $("#vocabStudy").requestFullscreen();
+});
+$("#vocabExitFullscreen").addEventListener("click", () =>
+  document.exitFullscreen(),
+);
 $("#todayList").addEventListener("click", (e) => {
   const button = e.target.closest("[data-today-article]");
   if (button) openArticle(+button.dataset.todayArticle);
@@ -815,6 +1083,10 @@ document.addEventListener("fullscreenchange", () => {
   $("#fullscreenCard").textContent = document.fullscreenElement
     ? "Згорнути"
     : "На весь екран";
+  $("#vocabFullscreen").textContent =
+    document.fullscreenElement === $("#vocabStudy")
+      ? "Згорнути"
+      : "На весь екран";
 });
 $("#reviewCard").addEventListener("click", () => {
   reviewFlipped = !reviewFlipped;
@@ -919,6 +1191,22 @@ $("#signOutBtn").addEventListener("click", async () => {
 });
 document.addEventListener("keydown", (e) => {
   if (
+    $("#vocabularyView").classList.contains("active") &&
+    !["INPUT", "TEXTAREA"].includes(e.target.tagName)
+  ) {
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(e.key))
+      e.preventDefault();
+    if (e.key === "ArrowLeft")
+      vocabLearnMode ? gradeVocabulary(false) : moveVocabulary(-1);
+    if (e.key === "ArrowRight")
+      vocabLearnMode ? gradeVocabulary(true) : moveVocabulary(1);
+    if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.code === "Space") {
+      vocabFlipped = !vocabFlipped;
+      renderVocabulary();
+    }
+    return;
+  }
+  if (
     !$("#cardsView").classList.contains("active") ||
     ["INPUT", "TEXTAREA"].includes(e.target.tagName)
   )
@@ -942,7 +1230,7 @@ renderAll();
 renderAuthStatus();
 tick();
 setInterval(tick, 1000);
-loadCards();
+Promise.all([loadCards(), loadVocabulary()]).then(restoreUiState);
 if (client) {
   client.auth.getSession().then(async ({ data }) => {
     await useSession(data.session);
