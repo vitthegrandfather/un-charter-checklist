@@ -681,6 +681,10 @@ function renderVocabulary() {
   const word = currentVocab();
   $("#vocabUk").textContent = word.uk;
   $("#vocabDe").textContent = word.de;
+  [[$("#vocabUk"), word.uk], [$("#vocabDe"), word.de]].forEach(([element, text]) => {
+    element.classList.toggle("term-single-line", text.length <= 32);
+    element.classList.toggle("term-long", text.length > 48);
+  });
   $("#vocabCard").classList.toggle("flipped", vocabFlipped);
   $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}`;
   $("#vocabPrev").disabled = vocabIndex === 0;
