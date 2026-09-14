@@ -697,6 +697,17 @@ function renderVocabulary() {
   });
   $("#vocabCard").classList.toggle("flipped", vocabFlipped);
   $("#vocabLearnMode").checked = vocabLearnMode;
+  const shuffled = vocabOrder.some((id, index) => id !== index);
+  $("#vocabShuffle").classList.toggle("state-on", shuffled);
+  $("#vocabShuffle").setAttribute("aria-pressed", String(shuffled));
+  $("#vocabShuffle").setAttribute(
+    "title",
+    shuffled ? "Вимкнути перемішування" : "Перемішати",
+  );
+  $("#vocabShuffle").setAttribute(
+    "aria-label",
+    shuffled ? "Вимкнути перемішування" : "Перемішати",
+  );
   $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}`;
   $("#vocabPrev").disabled = vocabIndex === 0;
   $("#vocabNext").disabled = vocabIndex === vocabOrder.length - 1;
@@ -929,8 +940,16 @@ $("#vocabLearnMode").addEventListener("change", (event) => {
   persistUiState("vocabulary");
 });
 $("#vocabShuffle").addEventListener("click", () => {
-  vocabOrder.sort(() => Math.random() - 0.5);
-  vocabIndex = 0;
+  const currentId = currentVocab().id;
+  const shuffled = vocabOrder.some((id, index) => id !== index);
+  vocabOrder = vocabulary.map((word) => word.id);
+  if (!shuffled) {
+    for (let i = vocabOrder.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [vocabOrder[i], vocabOrder[j]] = [vocabOrder[j], vocabOrder[i]];
+    }
+  }
+  vocabIndex = vocabOrder.indexOf(currentId);
   vocabFlipped = false;
   renderVocabulary();
 });

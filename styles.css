@@ -2048,6 +2048,15 @@ button {
   box-shadow: 0 2px 0 #151815;
 }
 [data-theme="dark"] .vocab-tools button:hover { background: #394039; }
+.vocab-tools button.state-on {
+  border-color: var(--green);
+  background: color-mix(in srgb, var(--green) 22%, var(--card));
+  color: var(--ink);
+}
+[data-theme="dark"] .vocab-tools button.state-on {
+  border-color: #78a18b;
+  background: #34463c;
+}
 #vocabReset:hover { color: var(--red); }
 @media (max-width: 720px) {
   .vocab-card-controls { margin: 14px 52px 0; }
