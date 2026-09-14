@@ -1902,6 +1902,10 @@ button {
   background: transparent;
   box-shadow: none;
 }
+.vocab-card:focus,
+.vocab-card:focus-visible {
+  outline: none;
+}
 .vocab-card {
   isolation: isolate;
   perspective: 1800px;
