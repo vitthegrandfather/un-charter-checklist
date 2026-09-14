@@ -222,6 +222,7 @@ function setAuthMode(mode) {
   $("#authName").required = !signin;
   $("#authEmail").closest("label").hidden = profile;
   $("#authPassword").closest("label").hidden = profile;
+  $("#authPassword").disabled = profile;
   $("#authSwitch").hidden = profile;
   $("#authSwitchText").textContent = signin
     ? "Вперше тут?"
