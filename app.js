@@ -76,8 +76,6 @@ let cards = [],
   vocabOrder = [],
   vocabIndex = 0,
   vocabFlipped = false,
-  vocabFilter = "all",
-  vocabLearnMode = false,
   uiRestored = false;
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
@@ -112,7 +110,6 @@ function persistUiState(view) {
     articleOrder: cards.length ? order : [],
     vocabId: vocabulary.length ? currentVocab()?.id : null,
     vocabOrder: vocabulary.length ? vocabOrder : [],
-    vocabLearnMode,
   };
   localStorage.setItem(UI_KEY, JSON.stringify(snapshot));
   savedUi = snapshot;
@@ -564,6 +561,7 @@ function renderAccount() {
 }
 function switchView(name, remember = true) {
   document.body.classList.toggle("cards-open", name === "cards");
+  document.body.classList.toggle("vocabulary-open", name === "vocabulary");
   $$(".view").forEach((v) =>
     v.classList.toggle("active", v.id === `${name}View`),
   );
@@ -660,13 +658,12 @@ function restoreUiState() {
   if (articlePosition >= 0) cardIndex = articlePosition;
   if (
     Array.isArray(savedUi.vocabOrder) &&
-    savedUi.vocabOrder.length &&
+    savedUi.vocabOrder.length === vocabulary.length &&
     savedUi.vocabOrder.every(
       (id) => Number.isInteger(id) && id >= 0 && id < vocabulary.length,
     )
   )
     vocabOrder = [...new Set(savedUi.vocabOrder)];
-  vocabLearnMode = Boolean(savedUi.vocabLearnMode);
   const vocabPosition = vocabOrder.indexOf(savedUi.vocabId);
   if (vocabPosition >= 0) vocabIndex = vocabPosition;
   const view = validViews.has(savedUi.view) ? savedUi.view : "tracker";
@@ -685,66 +682,22 @@ function renderVocabulary() {
   $("#vocabUk").textContent = word.uk;
   $("#vocabDe").textContent = word.de;
   $("#vocabCard").classList.toggle("flipped", vocabFlipped);
-  $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}${vocabLearnMode ? " · вивчення" : ""}`;
-  $("#vocabPrev").disabled = !vocabLearnMode && vocabIndex === 0;
-  $("#vocabNext").disabled =
-    !vocabLearnMode && vocabIndex === vocabOrder.length - 1;
-  $("#vocabPrev").textContent = vocabLearnMode ? "← Не знаю" : "←";
-  $("#vocabNext").textContent = vocabLearnMode ? "Знаю →" : "→";
-  $("#vocabPrev").setAttribute(
-    "aria-label",
-    vocabLearnMode ? "Не знаю" : "Попереднє слово",
-  );
-  $("#vocabNext").setAttribute(
-    "aria-label",
-    vocabLearnMode ? "Знаю" : "Наступне слово",
-  );
-  $("#vocabStudy").classList.toggle("learn-mode", vocabLearnMode);
-  $("#vocabLearnBanner").hidden = !vocabLearnMode;
-  $("#vocabLearnMode").setAttribute("aria-checked", String(vocabLearnMode));
-  $("#vocabLearnMode").setAttribute(
-    "aria-label",
-    vocabLearnMode ? "Вимкнути режим вивчення" : "Увімкнути режим вивчення",
-  );
-  const learned = state.vocabLearned.includes(word.id);
-  $("#vocabKnown").textContent = vocabLearnMode
-    ? "Знаю →"
-    : learned
-      ? "✓ Вивчено · скасувати"
-      : "Знаю ✓";
-  $("#vocabAgain").textContent = vocabLearnMode ? "← Не знаю" : "Ще повторити";
-  $("#vocabKnown").classList.toggle("state-on", learned);
-  const done = state.vocabLearned.filter((id) => id < vocabulary.length).length;
-  $("#vocabDone").textContent = done;
-  $("#vocabProgressBar").style.setProperty(
-    "--progress",
-    done / vocabulary.length,
-  );
+  $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}`;
+  $("#vocabPrev").disabled = vocabIndex === 0;
+  $("#vocabNext").disabled = vocabIndex === vocabOrder.length - 1;
   renderVocabularyList();
   persistUiState();
 }
 function renderVocabularyList() {
   if (!vocabulary.length) return;
-  const query = $("#vocabSearch").value.trim().toLocaleLowerCase();
-  const shown = vocabulary.filter((word) => {
-    const learned = state.vocabLearned.includes(word.id);
-    return (
-      (!query ||
-        word.uk.toLocaleLowerCase().includes(query) ||
-        word.de.toLocaleLowerCase().includes(query)) &&
-      (vocabFilter === "all" ||
-        (vocabFilter === "learned" && learned) ||
-        (vocabFilter === "learning" && !learned))
-    );
-  });
+  const shown = vocabulary;
   $("#vocabShown").textContent = `${shown.length} слів`;
   $("#vocabList").innerHTML = shown
     .map(
       (word) =>
-        `<button class="vocab-row${state.vocabLearned.includes(word.id) ? " learned" : ""}" data-vocab-id="${word.id}"><span>${safe(word.uk)}</span><strong>${safe(word.de)}</strong><i>${state.vocabLearned.includes(word.id) ? "✓" : ""}</i></button>`,
+        `<button class="vocab-row" data-vocab-id="${word.id}"><span>${safe(word.uk)}</span><strong>${safe(word.de)}</strong></button>`,
     )
     .join("");
-  $("#vocabEmpty").style.display = shown.length ? "none" : "block";
 }
 function moveVocabulary(step) {
   const next = Math.max(0, Math.min(vocabIndex + step, vocabOrder.length - 1));
@@ -753,30 +706,6 @@ function moveVocabulary(step) {
   vocabFlipped = false;
   renderVocabulary();
   animateStudyCard($("#vocabCard"), step);
-}
-function setVocabLearned(id, value = !state.vocabLearned.includes(id)) {
-  state.vocabLearned = state.vocabLearned.filter((wordId) => wordId !== id);
-  if (value) state.vocabLearned.push(id);
-  save();
-}
-function gradeVocabulary(known) {
-  const word = currentVocab();
-  state.vocabLearned = state.vocabLearned.filter((id) => id !== word.id);
-  if (known) state.vocabLearned.push(word.id);
-  if (vocabLearnMode) {
-    vocabOrder.splice(vocabIndex, 1);
-    if (!known) vocabOrder.push(word.id);
-    if (!vocabOrder.length) {
-      vocabLearnMode = false;
-      vocabOrder = vocabulary.map((item) => item.id);
-      vocabIndex = 0;
-    } else if (vocabIndex >= vocabOrder.length) vocabIndex = 0;
-    vocabFlipped = false;
-    save();
-  } else {
-    save();
-    moveVocabulary(1);
-  }
 }
 function currentCard() {
   return cards[order[cardIndex]];
@@ -938,16 +867,6 @@ $("#filterRow").addEventListener("click", (e) => {
   );
   renderArticles();
 });
-$("#vocabSearch").addEventListener("input", renderVocabularyList);
-$("#vocabFilters").addEventListener("click", (e) => {
-  const button = e.target.closest("[data-vocab-filter]");
-  if (!button) return;
-  vocabFilter = button.dataset.vocabFilter;
-  $$("#vocabFilters button").forEach((item) =>
-    item.classList.toggle("active", item === button),
-  );
-  renderVocabularyList();
-});
 $("#vocabList").addEventListener("click", (e) => {
   const row = e.target.closest("[data-vocab-id]");
   if (!row) return;
@@ -962,45 +881,8 @@ $("#vocabCard").addEventListener("click", () => {
   vocabFlipped = !vocabFlipped;
   renderVocabulary();
 });
-$("#vocabPrev").addEventListener("click", () =>
-  vocabLearnMode ? gradeVocabulary(false) : moveVocabulary(-1),
-);
-$("#vocabNext").addEventListener("click", () =>
-  vocabLearnMode ? gradeVocabulary(true) : moveVocabulary(1),
-);
-$("#vocabKnown").addEventListener("click", () =>
-  vocabLearnMode
-    ? gradeVocabulary(true)
-    : setVocabLearned(currentVocab().id),
-);
-$("#vocabAgain").addEventListener("click", () => gradeVocabulary(false));
-$("#vocabLearnMode").addEventListener("click", () => {
-  vocabLearnMode = !vocabLearnMode;
-  vocabOrder = vocabLearnMode
-    ? vocabulary
-        .filter((word) => !state.vocabLearned.includes(word.id))
-        .map((word) => word.id)
-    : vocabulary.map((word) => word.id);
-  if (!vocabOrder.length) vocabOrder = vocabulary.map((word) => word.id);
-  if (vocabLearnMode) vocabOrder.sort(() => Math.random() - 0.5);
-  vocabIndex = 0;
-  vocabFlipped = false;
-  renderVocabulary();
-});
-$("#vocabShuffle").addEventListener("click", () => {
-  vocabOrder.sort(() => Math.random() - 0.5);
-  vocabIndex = 0;
-  vocabFlipped = false;
-  renderVocabulary();
-});
-$("#vocabFullscreen").addEventListener("click", async () => {
-  if (document.fullscreenElement === $("#vocabStudy"))
-    await document.exitFullscreen();
-  else await $("#vocabStudy").requestFullscreen();
-});
-$("#vocabExitFullscreen").addEventListener("click", () =>
-  document.exitFullscreen(),
-);
+$("#vocabPrev").addEventListener("click", () => moveVocabulary(-1));
+$("#vocabNext").addEventListener("click", () => moveVocabulary(1));
 $("#todayList").addEventListener("click", (e) => {
   const button = e.target.closest("[data-today-article]");
   if (button) openArticle(+button.dataset.todayArticle);
@@ -1083,10 +965,6 @@ document.addEventListener("fullscreenchange", () => {
   $("#fullscreenCard").textContent = document.fullscreenElement
     ? "Згорнути"
     : "На весь екран";
-  $("#vocabFullscreen").textContent =
-    document.fullscreenElement === $("#vocabStudy")
-      ? "Згорнути"
-      : "На весь екран";
 });
 $("#reviewCard").addEventListener("click", () => {
   reviewFlipped = !reviewFlipped;
@@ -1196,10 +1074,8 @@ document.addEventListener("keydown", (e) => {
   ) {
     if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(e.key))
       e.preventDefault();
-    if (e.key === "ArrowLeft")
-      vocabLearnMode ? gradeVocabulary(false) : moveVocabulary(-1);
-    if (e.key === "ArrowRight")
-      vocabLearnMode ? gradeVocabulary(true) : moveVocabulary(1);
+    if (e.key === "ArrowLeft") moveVocabulary(-1);
+    if (e.key === "ArrowRight") moveVocabulary(1);
     if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.code === "Space") {
       vocabFlipped = !vocabFlipped;
       renderVocabulary();
