@@ -96,6 +96,8 @@ let cards = [],
   vocabShuffleAnchorId = Number.isInteger(savedUi.vocabShuffleAnchorId)
     ? savedUi.vocabShuffleAnchorId
     : null,
+  vocabPointerStart = null,
+  vocabSwipeHandled = false,
   uiRestored = false;
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
@@ -812,6 +814,10 @@ function renderVocabulary() {
   $("#vocabCard").classList.toggle("flipped", vocabFlipped);
   $("#vocabCard .vocab-card-inner").style.transform = `rotateX(${vocabRotation}deg)`;
   $("#vocabLearnMode").checked = vocabLearnMode;
+  const learnedCount = state.vocabLearned.filter((id) => id < vocabulary.length).length;
+  $("#vocabLearningStats").hidden = !vocabLearnMode;
+  $("#vocabLearnedCount").textContent = learnedCount;
+  $("#vocabRemainingCount").textContent = vocabulary.length - learnedCount;
   const shuffled = vocabOrder.some((id, index) => id !== index);
   $("#vocabShuffle").classList.toggle("state-on", shuffled);
   $("#vocabShuffle").setAttribute("aria-pressed", String(shuffled));
@@ -824,14 +830,8 @@ function renderVocabulary() {
     shuffled ? "Вимкнути перемішування" : "Перемішати",
   );
   $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}`;
-  $("#vocabPrev").disabled = vocabIndex === 0;
-  $("#vocabNext").disabled = vocabIndex === vocabOrder.length - 1;
-  const completed = state.vocabLearned.filter((id) => id < vocabulary.length).length;
-  $("#vocabLaunchProgressText").textContent = `Пройдено ${completed} із ${vocabulary.length}`;
-  $("#vocabLaunchProgressBar").style.setProperty(
-    "--progress",
-    completed / vocabulary.length,
-  );
+  $("#vocabPrev").disabled = !vocabLearnMode && vocabIndex === 0;
+  $("#vocabNext").disabled = !vocabLearnMode && vocabIndex === vocabOrder.length - 1;
   renderVocabularyList();
   persistUiState();
 }
@@ -860,13 +860,21 @@ function moveVocabulary(step) {
       learningChanged = true;
     }
   }
-  const next = Math.max(0, Math.min(vocabIndex + step, vocabOrder.length - 1));
+  const nextStep = vocabLearnMode ? 1 : step;
+  const next = Math.max(0, Math.min(vocabIndex + nextStep, vocabOrder.length - 1));
   if (next === vocabIndex && !learningChanged) return;
+  const inner = $("#vocabCard .vocab-card-inner");
+  const resetFace = vocabFlipped;
+  if (resetFace) inner.style.transition = "none";
   vocabIndex = next;
   vocabFlipped = false;
   vocabRotation = 0;
   if (learningChanged) save();
   else renderVocabulary();
+  if (resetFace) {
+    void inner.offsetWidth;
+    inner.style.removeProperty("transition");
+  }
   animateStudyCard($("#vocabCard"), step);
 }
 function flipVocabulary(direction = 1) {
@@ -1022,7 +1030,6 @@ $("#homeBtn").addEventListener("click", () => {
   renderArticles();
   switchView("tracker");
 });
-$("#vocabLaunch").addEventListener("click", () => switchView("vocabulary"));
 $$(".bottom-nav button").forEach((b) =>
   b.addEventListener("click", () => switchView(b.dataset.bottomView)),
 );
@@ -1134,13 +1141,33 @@ $("#vocabList").addEventListener("click", (e) => {
   $("#vocabCard").scrollIntoView({ behavior: "smooth", block: "center" });
 });
 $("#vocabCard").addEventListener("click", () => {
+  if (vocabSwipeHandled) {
+    vocabSwipeHandled = false;
+    return;
+  }
   flipVocabulary();
+});
+$("#vocabCard").addEventListener("pointerdown", (event) => {
+  if (!vocabLearnMode) return;
+  vocabPointerStart = { x: event.clientX, y: event.clientY };
+});
+$("#vocabCard").addEventListener("pointerup", (event) => {
+  if (!vocabLearnMode || !vocabPointerStart) return;
+  const dx = event.clientX - vocabPointerStart.x;
+  const dy = event.clientY - vocabPointerStart.y;
+  vocabPointerStart = null;
+  if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy)) return;
+  vocabSwipeHandled = true;
+  moveVocabulary(dx > 0 ? 1 : -1);
+});
+$("#vocabCard").addEventListener("pointercancel", () => {
+  vocabPointerStart = null;
 });
 $("#vocabPrev").addEventListener("click", () => moveVocabulary(-1));
 $("#vocabNext").addEventListener("click", () => moveVocabulary(1));
 $("#vocabLearnMode").addEventListener("change", (event) => {
   vocabLearnMode = event.target.checked;
-  persistUiState("vocabulary");
+  renderVocabulary();
 });
 $("#vocabShuffle").addEventListener("click", () => {
   const currentId = currentVocab().id;

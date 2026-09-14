@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=39" />
+    <link rel="stylesheet" href="styles.css?v=40" />
   </head>
   <body class="tracker-open">
     <a class="skip" href="#content">До вмісту</a>
@@ -87,12 +87,6 @@
             ><small>завершення всіх статей</small>
           </article>
         </div>
-        <button class="vocab-launch" id="vocabLaunch">
-          <span><small>Окремий набір · Мова фаху</small><strong>Вчити 150 ключових слів</strong>
-            <span class="vocab-launch-progress"><span id="vocabLaunchProgressText">Пройдено 0 із 150</span><i><b id="vocabLaunchProgressBar"></b></i></span>
-          </span>
-          <b>Почати →</b>
-        </button>
         <section class="today">
           <div>
             <span class="section-label">План на сьогодні</span>
@@ -158,7 +152,13 @@
       </section>
       <section class="view vocabulary-view" id="vocabularyView">
         <div class="vocab-study" id="vocabStudy">
-          <div class="vocab-minimal-counter" id="vocabCounter">1 / 150</div>
+          <div class="vocab-progress-line">
+            <div class="vocab-minimal-counter" id="vocabCounter">1 / 150</div>
+            <div class="vocab-learning-stats" id="vocabLearningStats" hidden>
+              <span><b id="vocabLearnedCount">0</b> вивчено</span>
+              <span><b id="vocabRemainingCount">150</b> залишилось</span>
+            </div>
+          </div>
           <div class="vocab-card-stage">
             <button id="vocabPrev" class="vocab-nav" aria-label="Попереднє слово">←</button>
             <button id="vocabCard" class="vocab-card" aria-label="Перевернути картку">
@@ -173,7 +173,7 @@
             <label class="vocab-learn-toggle">
               <input type="checkbox" id="vocabLearnMode" role="switch" />
               <span class="vocab-switch" aria-hidden="true"><i></i></span>
-              <span>Режим вивчення</span>
+              <span class="vocab-learn-label"><strong>Режим вивчення</strong><small>← ще вчу · вивчено →</small></span>
             </label>
             <div class="vocab-tools" aria-label="Параметри карток">
               <button id="vocabShuffle" aria-label="Перемішати" title="Перемішати"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3.2c2.8 0 4.1 2.2 5.5 5s2.7 5 5.5 5H20m-3-3 3 3-3 3M4 17h3.2c1.4 0 2.5-.6 3.4-1.7M14 8.7c1-1.1 2.2-1.7 4.2-1.7H20m-3-3 3 3-3 3"/></svg></button>
@@ -452,6 +452,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=41"></script>
+    <script src="app.js?v=42"></script>
   </body>
 </html>
