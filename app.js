@@ -934,10 +934,17 @@ function animateCard(step) {
 function moveCard(step) {
   const next = Math.max(0, Math.min(cardIndex + step, order.length - 1));
   if (next === cardIndex) return;
+  const inner = $("#flashcard .flashcard-inner");
+  const resetFace = flipped;
+  if (resetFace) inner.style.transition = "none";
   cardIndex = next;
   flipped = false;
   cardRotation = 0;
   renderCard();
+  if (resetFace) {
+    void inner.offsetWidth;
+    inner.style.removeProperty("transition");
+  }
   animateCard(step);
 }
 function openArticle(n) {
