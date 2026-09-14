@@ -169,6 +169,9 @@ async function saveGroupProfile(name = currentProfile?.display_name) {
   const row = {
     user_id: currentUser.id,
     display_name: cleanName,
+    avatar: state.profileAvatar,
+    custom_avatar: state.profileAvatar === "custom" ? state.customAvatar : "",
+    card_style: state.cardStyle,
     learned_count: state.learned.length,
     hard_count: Object.values(state.difficulty).filter((x) => x === "hard")
       .length,
@@ -197,7 +200,7 @@ async function loadLeaderboard() {
   }
   const { data, error } = await client
     .from("group_profiles")
-    .select("user_id,display_name,learned_count,hard_count,streak,updated_at")
+    .select("user_id,display_name,avatar,custom_avatar,card_style,learned_count,hard_count,streak,updated_at")
     .order("learned_count", { ascending: false })
     .order("updated_at", { ascending: true });
   groupProfiles = error ? [] : data || [];
@@ -595,9 +598,10 @@ function renderAccount() {
                 : presence
                   ? "Зараз на сайті"
                   : "";
-              const avatar = presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
-              const customAvatar = presence?.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
-              const cardStyle = ["classic", "sage", "sky", "lilac"].includes(presence?.card_style) ? presence.card_style : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
+              const avatar = presence?.avatar || p.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
+              const customAvatar = presence?.custom_avatar || p.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
+              const savedCardStyle = presence?.card_style || p.card_style;
+              const cardStyle = ["classic", "sage", "sky", "lilac"].includes(savedCardStyle) ? savedCardStyle : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
               return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}" data-profile-style="${cardStyle}"><b class="leader-rank">${i + 1}</b><span class="leader-avatar" aria-hidden="true">${avatarMarkup(avatar, customAvatar)}</span><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
             },
           )
@@ -1010,9 +1014,10 @@ $("#leaderboardList").addEventListener("click", (e) => {
   if (!p) return;
   const rank = groupProfiles.indexOf(p) + 1;
   const presence = onlineStudy.get(p.user_id);
-  const profileAvatar = presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
-  const profileCustomAvatar = presence?.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
-  const profileCardStyle = ["classic", "sage", "sky", "lilac"].includes(presence?.card_style) ? presence.card_style : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
+  const profileAvatar = presence?.avatar || p.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
+  const profileCustomAvatar = presence?.custom_avatar || p.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
+  const savedProfileCardStyle = presence?.card_style || p.card_style;
+  const profileCardStyle = ["classic", "sage", "sky", "lilac"].includes(savedProfileCardStyle) ? savedProfileCardStyle : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
   $("#profileDialog").dataset.profileStyle = profileCardStyle;
   $("#profileAvatar").innerHTML = avatarMarkup(profileAvatar, profileCustomAvatar);
   $("#profileName").textContent = p.display_name;
