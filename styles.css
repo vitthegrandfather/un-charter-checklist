@@ -2534,6 +2534,69 @@ body.cards-open .card-copy.is-compact,
   cursor: pointer;
   user-select: none;
 }
+
+/* One clear status row below article cards */
+.card-status-actions {
+  width: min(100%, 680px);
+  margin: 18px auto 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+}
+.card-status-actions button,
+.card-status-actions .learn-btn,
+.card-status-actions .review-btn,
+.card-status-actions .hard-btn {
+  min-width: 0;
+  width: 100%;
+  min-height: 52px;
+  padding: 13px 12px;
+  border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card) 94%, var(--ink));
+  color: var(--ink);
+  box-shadow: none;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
+}
+.card-status-actions button:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--card) 88%, var(--ink));
+}
+.card-status-actions .hard-btn.state-on {
+  background: color-mix(in srgb, var(--red) 16%, var(--card));
+  border-color: var(--red);
+  color: var(--ink);
+}
+.card-status-actions .review-btn.state-on {
+  background: color-mix(in srgb, var(--yellow) 30%, var(--card));
+  border-color: #9f7f05;
+  color: var(--ink);
+}
+.card-status-actions .learn-btn.state-on {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+@media (max-width: 520px) {
+  .card-status-actions {
+    gap: 7px;
+    margin-top: 12px;
+  }
+  .card-status-actions button,
+  .card-status-actions .learn-btn,
+  .card-status-actions .review-btn,
+  .card-status-actions .hard-btn {
+    min-height: 48px;
+    padding: 11px 6px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+}
 .vocab-learn-toggle input {
   position: absolute;
   width: 1px;

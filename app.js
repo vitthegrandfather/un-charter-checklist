@@ -689,9 +689,13 @@ function splitBalanced(text, count) {
   return pages;
 }
 function buildStudyCards(raw) {
-  const limit = window.innerWidth <= 520 ? 320 : window.innerWidth <= 900 ? 430 : 600;
+  const limit = window.innerWidth <= 520
+    ? 320
+    : window.innerWidth <= 900
+      ? 430
+      : Math.max(600, Math.min(1700, Math.floor((window.innerHeight - 220) * 1.5)));
   const expanded = [];
-  parseCardParts(raw).forEach(({ n, uk, de }) => {
+  mergeCards(raw).forEach(({ n, uk, de }) => {
     const ukBody = uk.replace(/^Стаття\s+\d+\.\s*/i, "");
     const deBody = de.replace(/^Artikel\s+\d+\.\s*/i, "");
     const pages = Math.max(1, Math.ceil(Math.max(ukBody.length, deBody.length) / limit));
@@ -895,13 +899,16 @@ function renderCard() {
     cardIndex === 0 ? "Це перша картка" : "Попередня картка";
   $("#nextArticle").title =
     cardIndex === order.length - 1 ? "Це остання картка" : "Наступна картка";
-  $("#cardLearned").textContent = has("learned", c.n)
-    ? "✓ Вивчено · скасувати"
-    : "✓ Позначити вивчено";
-  $("#cardReview").classList.toggle("state-on", has("review", c.n));
-  $$(".difficulty-actions button").forEach((b) =>
-    b.classList.toggle("state-on", state.difficulty[c.n] === b.dataset.level),
-  );
+  const learned = has("learned", c.n);
+  const review = has("review", c.n);
+  const hard = state.difficulty[c.n] === "hard";
+  $("#cardLearned").textContent = learned ? "Вивчено ✓" : "Вивчено";
+  $("#cardLearned").classList.toggle("state-on", learned);
+  $("#cardReview").textContent = review ? "Повторити ✓" : "Повторити";
+  $("#cardReview").classList.toggle("state-on", review);
+  const hardButton = $("#cardsView [data-level='hard']");
+  hardButton.textContent = hard ? "Складна ✓" : "Складна";
+  hardButton.classList.toggle("state-on", hard);
   trackPresence();
   persistUiState();
 }
@@ -1230,7 +1237,7 @@ $("#shuffleBtn").addEventListener("click", () => {
 });
 $("#cardLearned").addEventListener("click", () => learn(currentCard().n));
 $("#cardReview").addEventListener("click", () => markReview(currentCard().n));
-$$(".difficulty-actions button").forEach((b) =>
+$$("#cardsView [data-level]").forEach((b) =>
   b.addEventListener("click", () =>
     setDifficulty(currentCard().n, b.dataset.level),
   ),
