@@ -906,6 +906,23 @@ dialog textarea {
 .leader-row small {
   color: var(--muted);
 }
+.leader-row mark {
+  color: #16704a;
+  background: transparent;
+  font-weight: 800;
+}
+.online-dot {
+  display: inline-block;
+  width: 0.62rem;
+  height: 0.62rem;
+  margin-left: 0.45rem;
+  border-radius: 50%;
+  background: #22a96b;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #22a96b 18%, transparent);
+}
+[data-theme="dark"] .leader-row mark {
+  color: #75d4a8;
+}
 .leader-row em {
   font-style: normal;
 }

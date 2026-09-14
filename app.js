@@ -59,6 +59,9 @@ let cards = [],
   authMode = "signin",
   currentProfile = null,
   groupProfiles = [],
+  onlineStudy = new Map(),
+  realtimeChannel = null,
+  lastPresenceSignature = "",
   articleFilter = "all";
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
@@ -129,6 +132,11 @@ async function saveGroupProfile(name = currentProfile?.display_name) {
   if (!error) {
     currentProfile = row;
     await loadLeaderboard();
+    await realtimeChannel?.send({
+      type: "broadcast",
+      event: "profile-updated",
+      payload: { user_id: currentUser.id },
+    });
   }
   return error;
 }
@@ -169,6 +177,7 @@ async function useSession(session) {
     setCloudStatus("Прогрес синхронізовано ✓");
   } else await saveCloud();
   await loadLeaderboard();
+  startRealtime();
   if (!currentProfile) {
     const suggested = currentUser.user_metadata?.display_name || "";
     if (suggested) {
@@ -178,6 +187,52 @@ async function useSession(session) {
     setAuthMode("profile");
     openAuth();
   }
+}
+function readPresence() {
+  onlineStudy = new Map();
+  if (!realtimeChannel) return;
+  Object.values(realtimeChannel.presenceState()).flat().forEach((presence) => {
+    if (!presence?.user_id) return;
+    const previous = onlineStudy.get(presence.user_id);
+    if (!previous || String(presence.updated_at) > String(previous.updated_at))
+      onlineStudy.set(presence.user_id, presence);
+  });
+  renderAccount();
+}
+async function trackPresence(force = false) {
+  if (!realtimeChannel || !currentUser) return;
+  const cardsOpen = $("#cardsView")?.classList.contains("active");
+  const article = cardsOpen && cards.length ? currentCard()?.n || null : null;
+  const signature = `${currentUser.id}:${article || "online"}`;
+  if (!force && signature === lastPresenceSignature) return;
+  lastPresenceSignature = signature;
+  await realtimeChannel.track({
+    user_id: currentUser.id,
+    article,
+    updated_at: new Date().toISOString(),
+  });
+}
+async function stopRealtime() {
+  if (!realtimeChannel) return;
+  const channel = realtimeChannel;
+  realtimeChannel = null;
+  lastPresenceSignature = "";
+  onlineStudy = new Map();
+  await channel.untrack();
+  await client.removeChannel(channel);
+}
+async function startRealtime() {
+  if (!client || !currentUser) return;
+  if (realtimeChannel) await stopRealtime();
+  realtimeChannel = client
+    .channel("lernstudio-group", {
+      config: { presence: { key: currentUser.id } },
+    })
+    .on("presence", { event: "sync" }, readPresence)
+    .on("broadcast", { event: "profile-updated" }, loadLeaderboard)
+    .subscribe(async (status) => {
+      if (status === "SUBSCRIBED") await trackPresence(true);
+    });
 }
 function renderAuthStatus() {
   if (currentUser) {
@@ -456,8 +511,15 @@ function renderAccount() {
     ? groupProfiles.length
       ? groupProfiles
           .map(
-            (p, i) =>
-              `<button class="leader-row" data-profile="${p.user_id}"><b>${i + 1}</b><span><strong>${safe(p.display_name)}</strong><small>${p.learned_count} з 39 статей</small></span><em>${p.learned_count}</em></button>`,
+            (p, i) => {
+              const presence = onlineStudy.get(p.user_id);
+              const liveText = presence?.article
+                ? `Зараз вчить статтю ${presence.article}`
+                : presence
+                  ? "Зараз на сайті"
+                  : "";
+              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}"><b>${i + 1}</b><span><strong>${safe(p.display_name)}${presence ? '<i class="online-dot" aria-label="Онлайн"></i>' : ""}</strong><small>${p.learned_count} з 39 статей${liveText ? ` · <mark>${liveText}</mark>` : ""}</small></span><em>${p.learned_count}</em></button>`;
+            },
           )
           .join("")
       : "<p>У рейтингу поки немає учасників.</p>"
@@ -475,6 +537,7 @@ function switchView(name) {
     b.classList.toggle("active", b.dataset.bottomView === name),
   );
   if (name === "review") startReview(false);
+  trackPresence();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 function mergeCards(raw) {
@@ -541,6 +604,7 @@ function renderCard() {
   $$(".difficulty-actions button").forEach((b) =>
     b.classList.toggle("state-on", state.difficulty[c.n] === b.dataset.level),
   );
+  trackPresence();
 }
 function animateCard(step) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -841,6 +905,7 @@ $("#authForm").addEventListener("submit", async (e) => {
   }
 });
 $("#signOutBtn").addEventListener("click", async () => {
+  await stopRealtime();
   await client.auth.signOut();
   currentUser = null;
   currentProfile = null;
@@ -862,12 +927,8 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
   if (e.key === "ArrowLeft") moveCard(-1);
   if (e.key === "ArrowRight") moveCard(1);
-  if (e.key === "ArrowUp") {
-    flipped = false;
-    renderCard();
-  }
-  if (e.key === "ArrowDown") {
-    flipped = true;
+  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    flipped = !flipped;
     renderCard();
   }
   if (e.code === "Space") {
@@ -894,6 +955,7 @@ if (client) {
     if (event === "SIGNED_IN" && session?.user?.id !== currentUser?.id)
       setTimeout(() => useSession(session), 0);
     if (event === "SIGNED_OUT") {
+      stopRealtime();
       currentUser = null;
       renderAuthStatus();
     }
