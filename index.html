@@ -117,12 +117,14 @@
           </div>
           <div class="study-tools">
             <button id="fullscreenCard">На весь екран</button
+            ><button id="prevArticle">← Попередня</button
+            ><button id="nextArticle">Наступна →</button
             ><button id="shuffleBtn">⇄ Перемішати</button
             ><span id="cardCounter">1 / 39</span>
           </div>
         </div>
         <div class="flashcard-wrap">
-          <button class="arrow" id="prevCard" aria-label="Попередня картка">
+          <button class="arrow" id="prevCard" aria-label="Показати український текст">
             ↑</button
           ><button
             class="flashcard-scene"
@@ -140,7 +142,7 @@
                 ><span class="flip-hint">Натисніть, щоб перевернути</span></span
               ></span
             ></button
-          ><button class="arrow" id="nextCard" aria-label="Наступна картка">
+          ><button class="arrow" id="nextCard" aria-label="Показати німецький переклад">
             ↓
           </button>
         </div>
@@ -151,7 +153,7 @@
           <button class="review-btn" id="cardReview">Повторити</button
           ><button class="learn-btn" id="cardLearned">Знаю ✓</button>
         </div>
-        <p class="keyboard">Клавіші: ↑ ↓ навігація · пробіл перевернути</p>
+        <p class="keyboard">↑ українська · ↓ німецька · ← → інша стаття · пробіл перевернути</p>
       </section>
       <section class="view" id="reviewView">
         <div class="study-head">
@@ -368,6 +370,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=11"></script>
   </body>
 </html>

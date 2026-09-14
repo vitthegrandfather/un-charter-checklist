@@ -207,6 +207,11 @@ function renderAuthStatus() {
     setAuthMode("signin");
   }
 }
+function authErrorText(error) {
+  if (error?.message?.toLowerCase().includes("email rate limit"))
+    return "Тимчасово вичерпано ліміт листів підтвердження. Спробуйте трохи пізніше.";
+  return error?.message || "Не вдалося виконати вхід. Спробуйте ще раз.";
+}
 function setAuthMode(mode) {
   authMode = mode;
   const profile = mode === "profile";
@@ -520,11 +525,14 @@ function renderCard() {
   $("#cardDe").textContent = c.de;
   $("#flashcard").classList.toggle("flipped", flipped);
   $("#cardCounter").textContent = `${cardIndex + 1} / ${order.length}${cardIndex === 0 ? " · початок" : cardIndex === order.length - 1 ? " · кінець" : ""}`;
-  $("#prevCard").disabled = cardIndex === 0;
-  $("#nextCard").disabled = cardIndex === order.length - 1;
-  $("#prevCard").title = cardIndex === 0 ? "Це перша картка" : "Попередня картка";
-  $("#nextCard").title =
-    cardIndex === order.length - 1 ? "Це остання картка" : "Наступна картка";
+  $("#prevCard").classList.toggle("state-on", !flipped);
+  $("#nextCard").classList.toggle("state-on", flipped);
+  $("#prevArticle").disabled = cardIndex === 0;
+  $("#nextArticle").disabled = cardIndex === order.length - 1;
+  $("#prevArticle").title =
+    cardIndex === 0 ? "Це перша стаття" : "Попередня стаття";
+  $("#nextArticle").title =
+    cardIndex === order.length - 1 ? "Це остання стаття" : "Наступна стаття";
   $("#cardLearned").textContent = has("learned", c.n)
     ? "✓ Вивчено · скасувати"
     : "✓ Позначити вивчено";
@@ -700,8 +708,16 @@ $("#flashcard").addEventListener("click", () => {
   flipped = !flipped;
   renderCard();
 });
-$("#prevCard").addEventListener("click", () => moveCard(-1));
-$("#nextCard").addEventListener("click", () => moveCard(1));
+$("#prevCard").addEventListener("click", () => {
+  flipped = false;
+  renderCard();
+});
+$("#nextCard").addEventListener("click", () => {
+  flipped = true;
+  renderCard();
+});
+$("#prevArticle").addEventListener("click", () => moveCard(-1));
+$("#nextArticle").addEventListener("click", () => moveCard(1));
 $("#shuffleBtn").addEventListener("click", () => {
   order.sort(() => Math.random() - 0.5);
   cardIndex = 0;
@@ -812,7 +828,7 @@ $("#authForm").addEventListener("submit", async (e) => {
         });
   $("#authSubmit").disabled = false;
   if (result.error) {
-    $("#authMessage").textContent = result.error.message;
+    $("#authMessage").textContent = authErrorText(result.error);
     return;
   }
   if (authMode === "signup" && !result.data.session) {
@@ -843,8 +859,16 @@ document.addEventListener("keydown", (e) => {
     return;
   if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key))
     e.preventDefault();
-  if (e.key === "ArrowLeft" || e.key === "ArrowUp") moveCard(-1);
-  if (e.key === "ArrowRight" || e.key === "ArrowDown") moveCard(1);
+  if (e.key === "ArrowLeft") moveCard(-1);
+  if (e.key === "ArrowRight") moveCard(1);
+  if (e.key === "ArrowUp") {
+    flipped = false;
+    renderCard();
+  }
+  if (e.key === "ArrowDown") {
+    flipped = true;
+    renderCard();
+  }
   if (e.code === "Space") {
     e.preventDefault();
     flipped = !flipped;

@@ -566,6 +566,14 @@ textarea:focus-visible {
   box-shadow: none;
   transform: none;
 }
+.arrow.state-on {
+  background: var(--ink);
+  color: var(--paper);
+}
+.study-tools button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
 .study-actions {
   display: flex;
   justify-content: center;
