@@ -77,6 +77,7 @@ let cards = [],
   vocabIndex = 0,
   vocabFlipped = false,
   vocabLearnMode = Boolean(savedUi.vocabLearnMode),
+  vocabGermanFirst = Boolean(savedUi.vocabGermanFirst),
   uiRestored = false;
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
@@ -112,6 +113,7 @@ function persistUiState(view) {
     vocabId: vocabulary.length ? currentVocab()?.id : null,
     vocabOrder: vocabulary.length ? vocabOrder : [],
     vocabLearnMode,
+    vocabGermanFirst,
   };
   localStorage.setItem(UI_KEY, JSON.stringify(snapshot));
   savedUi = snapshot;
@@ -669,6 +671,7 @@ function restoreUiState() {
   const vocabPosition = vocabOrder.indexOf(savedUi.vocabId);
   if (vocabPosition >= 0) vocabIndex = vocabPosition;
   vocabLearnMode = Boolean(savedUi.vocabLearnMode);
+  vocabGermanFirst = Boolean(savedUi.vocabGermanFirst);
   const view = validViews.has(savedUi.view) ? savedUi.view : "tracker";
   uiRestored = true;
   switchView(view, true);
@@ -682,9 +685,13 @@ function renderVocabulary() {
   if (!vocabulary.length) return;
   vocabIndex = Math.max(0, Math.min(vocabIndex, vocabOrder.length - 1));
   const word = currentVocab();
-  $("#vocabUk").textContent = word.uk;
-  $("#vocabDe").textContent = word.de;
-  [[$("#vocabUk"), word.uk], [$("#vocabDe"), word.de]].forEach(([element, text]) => {
+  const frontText = vocabGermanFirst ? word.de : word.uk;
+  const backText = vocabGermanFirst ? word.uk : word.de;
+  $("#vocabUk").textContent = frontText;
+  $("#vocabDe").textContent = backText;
+  $("#vocabFrontLabel").textContent = vocabGermanFirst ? "Deutsch" : "Українська";
+  $("#vocabBackLabel").textContent = vocabGermanFirst ? "Українська" : "Deutsch";
+  [[$("#vocabUk"), frontText], [$("#vocabDe"), backText]].forEach(([element, text]) => {
     element.classList.toggle("term-single-line", text.length <= 32);
     element.classList.toggle("term-long", text.length > 48);
   });
@@ -920,6 +927,30 @@ $("#vocabNext").addEventListener("click", () => moveVocabulary(1));
 $("#vocabLearnMode").addEventListener("change", (event) => {
   vocabLearnMode = event.target.checked;
   persistUiState("vocabulary");
+});
+$("#vocabShuffle").addEventListener("click", () => {
+  vocabOrder.sort(() => Math.random() - 0.5);
+  vocabIndex = 0;
+  vocabFlipped = false;
+  renderVocabulary();
+});
+$("#vocabSwap").addEventListener("click", () => {
+  vocabGermanFirst = !vocabGermanFirst;
+  vocabFlipped = false;
+  renderVocabulary();
+});
+$("#vocabRestart").addEventListener("click", () => {
+  vocabIndex = 0;
+  vocabFlipped = false;
+  renderVocabulary();
+  $("#vocabCard").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+$("#vocabReset").addEventListener("click", () => {
+  if (!confirm("Скинути весь прогрес для 150 слів?")) return;
+  state.vocabLearned = [];
+  vocabIndex = 0;
+  vocabFlipped = false;
+  save();
 });
 $("#todayList").addEventListener("click", (e) => {
   const button = e.target.closest("[data-today-article]");

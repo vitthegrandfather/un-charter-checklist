@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=21" />
+    <link rel="stylesheet" href="styles.css?v=22" />
   </head>
   <body>
     <a class="skip" href="#content">До вмісту</a>
@@ -169,8 +169,8 @@
             <button id="vocabPrev" class="vocab-nav" aria-label="Попереднє слово">←</button>
             <button id="vocabCard" class="vocab-card" aria-label="Перевернути картку">
               <span class="vocab-card-inner">
-                <span class="vocab-face vocab-front"><small>Українська</small><strong id="vocabUk">Завантаження…</strong></span>
-                <span class="vocab-face vocab-back"><small>Deutsch</small><strong id="vocabDe"></strong></span>
+                <span class="vocab-face vocab-front"><small id="vocabFrontLabel">Українська</small><strong id="vocabUk">Завантаження…</strong></span>
+                <span class="vocab-face vocab-back"><small id="vocabBackLabel">Deutsch</small><strong id="vocabDe"></strong></span>
               </span>
             </button>
             <button id="vocabNext" class="vocab-nav" aria-label="Наступне слово">→</button>
@@ -180,6 +180,12 @@
             <span class="vocab-switch" aria-hidden="true"><i></i></span>
             <span>Режим вивчення</span>
           </label>
+          <div class="vocab-tools" aria-label="Параметри карток">
+            <button id="vocabShuffle">Перемішати</button>
+            <button id="vocabSwap">Поміняти сторони</button>
+            <button id="vocabRestart">Спочатку</button>
+            <button id="vocabReset">Скинути прогрес</button>
+          </div>
         </div>
         <div class="vocab-list-head">
           <h3>Усі слова</h3>
@@ -403,6 +409,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=23"></script>
+    <script src="app.js?v=24"></script>
   </body>
 </html>
