@@ -693,6 +693,7 @@ $("#authForm").addEventListener("submit", async (e) => {
       return;
     }
     $("#authSubmit").disabled = true;
+    $("#authMessage").textContent = "Зберігаю ім’я…";
     const error = await saveGroupProfile(name);
     $("#authSubmit").disabled = false;
     if (error) {
@@ -707,6 +708,15 @@ $("#authForm").addEventListener("submit", async (e) => {
   const email = $("#authEmail").value.trim(),
     password = $("#authPassword").value,
     displayName = $("#authName").value.trim();
+  if (!email || password.length < 8) {
+    $("#authMessage").textContent =
+      "Вкажіть email і пароль щонайменше з 8 символів.";
+    return;
+  }
+  if (authMode === "signup" && displayName.length < 2) {
+    $("#authMessage").textContent = "Вкажіть ім’я щонайменше з 2 символів.";
+    return;
+  }
   $("#authSubmit").disabled = true;
   $("#authMessage").textContent = "Зачекайте…";
   const result =
