@@ -182,17 +182,18 @@ async function useSession(session) {
 function renderAuthStatus() {
   if (currentUser) {
     $("#authBtn").textContent = "Акаунт ✓";
-    setCloudStatus(currentUser.email);
+    setCloudStatus("Прогрес синхронізується між пристроями");
     $("#signOutBtn").hidden = false;
     $("#authSubmit").hidden = true;
     $("#authSwitch").hidden = true;
-    $("#authEmail").value = currentUser.email;
+    $("#authEmail").value = "";
     $("#authEmail").disabled = true;
-    $("#authEmail").closest("label").hidden = false;
+    $("#authEmail").closest("label").hidden = true;
     $("#nameField").hidden = true;
     $("#authPassword").closest("label").hidden = true;
-    $("#authIntro").textContent =
-      `Ви увійшли як ${currentUser.email}. Прогрес синхронізується автоматично.`;
+    $("#authIntro").textContent = currentProfile?.display_name
+      ? `${currentProfile.display_name}, ваш прогрес синхронізується автоматично.`
+      : "Ваш прогрес синхронізується автоматично.";
     $("#authTitle").textContent = "Ваш акаунт";
   } else {
     $("#authBtn").textContent = "Увійти";
@@ -442,7 +443,7 @@ function renderAccount() {
     currentProfile?.display_name || "Гостьовий режим";
   $("#editName").hidden = !currentUser;
   $("#accountSync").textContent = currentUser
-    ? currentUser.email
+    ? "Синхронізація між пристроями активна ✓"
     : "Прогрес зберігається лише на цьому пристрої";
   $("#accountLead").textContent = currentUser
     ? "Ваш прогрес збережений і бере участь у рейтингу."
