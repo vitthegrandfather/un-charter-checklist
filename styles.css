@@ -531,22 +531,7 @@ textarea:focus-visible {
     sans-serif;
 }
 .flashcard-wrap {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 54px;
-  grid-template-areas: "card up" "card down";
-  gap: 12px;
-  align-items: center;
-}
-.flashcard-wrap > .flashcard-scene {
-  grid-area: card;
-}
-.flashcard-wrap > .arrow:first-child {
-  grid-area: up;
-  align-self: end;
-}
-.flashcard-wrap > .arrow:last-child {
-  grid-area: down;
-  align-self: start;
+  display: block;
 }
 .review-wrap {
   display: block;
@@ -595,25 +580,6 @@ textarea:focus-visible {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.09em;
-}
-.arrow {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  font-size: 24px;
-  position: relative;
-  z-index: 2;
-  touch-action: manipulation;
-}
-.arrow:disabled {
-  opacity: 0.28;
-  cursor: default;
-  box-shadow: none;
-  transform: none;
-}
-.arrow.state-on {
-  background: var(--ink);
-  color: var(--paper);
 }
 .study-tools button:disabled {
   opacity: 0.35;
@@ -903,14 +869,6 @@ dialog textarea {
   .article-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .flashcard-wrap {
-    grid-template-columns: minmax(0, 1fr) 42px;
-    grid-template-areas: "card up" "card down";
-  }
-  .arrow {
-    width: 42px;
-    height: 42px;
-  }
   .flashcard {
     min-height: 480px;
   }
@@ -957,20 +915,6 @@ dialog textarea {
   .study-head {
     align-items: start;
     gap: 15px;
-  }
-  .flashcard-wrap {
-    grid-template-columns: 1fr;
-  }
-  .arrow {
-    position: fixed;
-    bottom: 14px;
-    z-index: 3;
-  }
-  .arrow:first-child {
-    left: 14px;
-  }
-  .arrow:last-child {
-    right: 14px;
   }
   .flashcard {
     min-height: 62vh;
@@ -1301,15 +1245,7 @@ dialog textarea {
     display: none;
   }
   body.cards-open .flashcard-wrap {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 44px;
-    grid-template-areas: "card up" "card down";
-  }
-  body.cards-open .flashcard-wrap > .arrow {
     display: block;
-    position: static;
-    width: 44px;
-    height: 44px;
   }
   body.cards-open .flashcard-scene,
   body.cards-open .flashcard-inner {
@@ -1872,8 +1808,7 @@ button {
   background: #d7dbd4;
   color: #20231f;
 }
-[data-theme="dark"] .vocab-nav,
-[data-theme="dark"] .arrow {
+[data-theme="dark"] .vocab-nav {
   box-shadow: none;
 }
 @media (max-width: 520px) {

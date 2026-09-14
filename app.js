@@ -891,8 +891,6 @@ function renderCard() {
   $("#flashcard").classList.toggle("flipped", flipped);
   $("#flashcard .flashcard-inner").style.transform = `rotateX(${cardRotation}deg)`;
   $("#cardCounter").textContent = `Стаття ${c.n}${c.parts > 1 ? ` · ${c.part}/${c.parts}` : ""} · ${cardIndex + 1}/${order.length}${cardIndex === 0 ? " · початок" : cardIndex === order.length - 1 ? " · кінець" : ""}`;
-  $("#prevCard").classList.toggle("state-on", !flipped);
-  $("#nextCard").classList.toggle("state-on", flipped);
   $("#prevArticle").disabled = cardIndex === 0;
   $("#nextArticle").disabled = cardIndex === order.length - 1;
   $("#prevArticle").title =
@@ -1217,12 +1215,6 @@ $("#noteDialog").addEventListener("close", () => {
   }
 });
 $("#flashcard").addEventListener("click", () => {
-  flipCard(1);
-});
-$("#prevCard").addEventListener("click", () => {
-  flipCard(-1);
-});
-$("#nextCard").addEventListener("click", () => {
   flipCard(1);
 });
 $("#prevArticle").addEventListener("click", () => moveCard(-1));
