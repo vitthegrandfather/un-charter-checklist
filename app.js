@@ -343,7 +343,7 @@ function renderMetrics() {
     ? plan
         .map(
           (n) =>
-            `<button class="today-article ${has("learned", n) ? "done" : ""}" data-today-article="${n}" aria-label="Відкрити статтю ${n}"><span>${has("learned", n) ? "✓" : "○"}</span><b>Стаття ${n}</b><small>Artikel ${n}</small></button>`,
+            `<button class="today-article ${has("learned", n) ? "done" : ""}" data-today-article="${n}" aria-label="Відкрити статтю ${n}"><span class="today-check" aria-hidden="true">${has("learned", n) ? "✓" : ""}</span><span class="today-name"><b>Стаття ${n}</b><small>Artikel ${n}</small></span></button>`,
         )
         .join("")
     : "<span class=\"today-complete\">Усі нові статті вже пройдено</span>";
@@ -519,9 +519,12 @@ function renderCard() {
   $("#cardUk").textContent = c.uk;
   $("#cardDe").textContent = c.de;
   $("#flashcard").classList.toggle("flipped", flipped);
-  $("#cardCounter").textContent = `${cardIndex + 1} / ${order.length}`;
+  $("#cardCounter").textContent = `${cardIndex + 1} / ${order.length}${cardIndex === 0 ? " · початок" : cardIndex === order.length - 1 ? " · кінець" : ""}`;
   $("#prevCard").disabled = cardIndex === 0;
   $("#nextCard").disabled = cardIndex === order.length - 1;
+  $("#prevCard").title = cardIndex === 0 ? "Це перша картка" : "Попередня картка";
+  $("#nextCard").title =
+    cardIndex === order.length - 1 ? "Це остання картка" : "Наступна картка";
   $("#cardLearned").textContent = has("learned", c.n)
     ? "✓ Вивчено · скасувати"
     : "✓ Позначити вивчено";
