@@ -2685,6 +2685,9 @@ body.cards-open .card-copy.is-compact,
   background: color-mix(in srgb, var(--green) 22%, var(--card));
   color: var(--ink);
 }
+.vocab-tools .vocab-undo {
+  border-color: color-mix(in srgb, var(--ink) 18%, transparent);
+}
 [data-theme="dark"] .vocab-tools button.state-on {
   border-color: #78a18b;
   background: #34463c;
@@ -2779,6 +2782,20 @@ body.cards-open .card-copy.is-compact,
     box-shadow: 0 14px 38px rgba(2, 8, 23, 0.52);
   }
   [data-theme="dark"] .bottom-nav button.active { background: #263650; }
+  .vocab-tools .vocab-undo:not([hidden]) {
+    position: fixed;
+    z-index: 9;
+    right: 16px;
+    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 76px);
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+    border-radius: 50%;
+    background: var(--card);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 18%, transparent);
+  }
 }
 #vocabReset:hover { color: var(--red); }
 @media (max-width: 720px) {

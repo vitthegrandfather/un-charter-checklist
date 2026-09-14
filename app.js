@@ -830,18 +830,21 @@ function renderVocabulary() {
     shuffled ? "Вимкнути перемішування" : "Перемішати",
   );
   $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}`;
-  $("#vocabPrev").disabled = vocabLearnMode
-    ? vocabUndoStack.length === 0
-    : vocabIndex === 0;
-  $("#vocabPrev").classList.toggle("is-undo", vocabLearnMode);
+  $("#vocabPrev").disabled = !vocabLearnMode && vocabIndex === 0;
   $("#vocabPrev").setAttribute(
     "aria-label",
-    vocabLearnMode ? "Скасувати останній свайп" : "Попереднє слово",
+    vocabLearnMode ? "Ще вчу" : "Попереднє слово",
   );
   $("#vocabPrev").title = vocabLearnMode
-    ? "Скасувати останній свайп"
+    ? "Ще вчу"
     : "Попереднє слово";
+  $("#vocabNext").setAttribute(
+    "aria-label",
+    vocabLearnMode ? "Вивчено" : "Наступне слово",
+  );
+  $("#vocabNext").title = vocabLearnMode ? "Вивчено" : "Наступне слово";
   $("#vocabNext").disabled = !vocabLearnMode && vocabIndex === vocabOrder.length - 1;
+  $("#vocabUndo").hidden = !vocabLearnMode || vocabUndoStack.length === 0;
   renderVocabularyList();
   persistUiState();
 }
@@ -1311,9 +1314,12 @@ $("#vocabCard").addEventListener("pointercancel", () => {
   if (vocabLearnMode) settleVocabularyDrag();
 });
 $("#vocabPrev").addEventListener("click", () =>
-  vocabLearnMode ? undoVocabularyDecision() : moveVocabulary(-1),
+  vocabLearnMode ? animateVocabularyDecision(-1) : moveVocabulary(-1),
 );
-$("#vocabNext").addEventListener("click", () => moveVocabulary(1));
+$("#vocabNext").addEventListener("click", () =>
+  vocabLearnMode ? animateVocabularyDecision(1) : moveVocabulary(1),
+);
+$("#vocabUndo").addEventListener("click", undoVocabularyDecision);
 $("#vocabLearnMode").addEventListener("change", (event) => {
   vocabLearnMode = event.target.checked;
   vocabUndoStack = [];
@@ -1585,8 +1591,10 @@ document.addEventListener("keydown", (e) => {
   ) {
     if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(e.key))
       e.preventDefault();
-    if (e.key === "ArrowLeft") moveVocabulary(-1);
-    if (e.key === "ArrowRight") moveVocabulary(1);
+    if (e.key === "ArrowLeft")
+      vocabLearnMode ? animateVocabularyDecision(-1) : moveVocabulary(-1);
+    if (e.key === "ArrowRight")
+      vocabLearnMode ? animateVocabularyDecision(1) : moveVocabulary(1);
     if (e.key === "ArrowUp") flipVocabulary(-1);
     if (e.key === "ArrowDown" || e.code === "Space") flipVocabulary(1);
     return;
