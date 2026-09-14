@@ -79,6 +79,9 @@ let cards = [],
   vocabRotation = 0,
   vocabLearnMode = Boolean(savedUi.vocabLearnMode),
   vocabGermanFirst = Boolean(savedUi.vocabGermanFirst),
+  vocabShuffleAnchorId = Number.isInteger(savedUi.vocabShuffleAnchorId)
+    ? savedUi.vocabShuffleAnchorId
+    : null,
   uiRestored = false;
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
@@ -115,6 +118,7 @@ function persistUiState(view) {
     vocabOrder: vocabulary.length ? vocabOrder : [],
     vocabLearnMode,
     vocabGermanFirst,
+    vocabShuffleAnchorId,
   };
   localStorage.setItem(UI_KEY, JSON.stringify(snapshot));
   savedUi = snapshot;
@@ -673,6 +677,9 @@ function restoreUiState() {
   if (vocabPosition >= 0) vocabIndex = vocabPosition;
   vocabLearnMode = Boolean(savedUi.vocabLearnMode);
   vocabGermanFirst = Boolean(savedUi.vocabGermanFirst);
+  vocabShuffleAnchorId = Number.isInteger(savedUi.vocabShuffleAnchorId)
+    ? savedUi.vocabShuffleAnchorId
+    : null;
   const view = validViews.has(savedUi.view) ? savedUi.view : "tracker";
   uiRestored = true;
   switchView(view, true);
@@ -949,13 +956,18 @@ $("#vocabShuffle").addEventListener("click", () => {
   const shuffled = vocabOrder.some((id, index) => id !== index);
   vocabOrder = vocabulary.map((word) => word.id);
   if (!shuffled) {
+    vocabShuffleAnchorId = currentId;
     for (let i = vocabOrder.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1));
       [vocabOrder[i], vocabOrder[j]] = [vocabOrder[j], vocabOrder[i]];
     }
     vocabIndex = 0;
   } else {
-    vocabIndex = vocabOrder.indexOf(currentId);
+    const returnId = Number.isInteger(vocabShuffleAnchorId)
+      ? vocabShuffleAnchorId
+      : currentId;
+    vocabIndex = vocabOrder.indexOf(returnId);
+    vocabShuffleAnchorId = null;
   }
   vocabFlipped = false;
   vocabRotation = 0;
