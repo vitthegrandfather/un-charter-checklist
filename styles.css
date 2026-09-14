@@ -3033,3 +3033,64 @@ body.cards-open .card-copy.is-compact,
     max-width: 118px;
   }
 }
+
+/* Mobile study surface: the card owns the width; navigation floats above it. */
+@media (max-width: 720px) {
+  .vocabulary-view { padding-top: 20px; }
+  .vocab-study { margin-bottom: 38px; }
+  .vocab-card-stage {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+  .vocab-card {
+    display: block;
+    width: 100%;
+    height: min(68svh, 620px);
+    min-height: 470px;
+  }
+  .vocab-nav {
+    position: absolute;
+    z-index: 6;
+    top: 50%;
+    width: 48px;
+    height: 48px;
+    transform: translateY(-50%);
+    background: color-mix(in srgb, var(--card) 86%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  .vocab-nav:first-child { left: 10px; }
+  .vocab-nav:last-child { right: 10px; }
+  .vocab-nav:not(:disabled):active { transform: translateY(-50%) scale(0.94); }
+  .vocab-face { padding: 48px 64px; }
+  .vocab-face strong,
+  .vocab-face strong.term-single-line,
+  .vocab-face strong.term-long {
+    max-width: 100%;
+    font-size: clamp(24px, 7.2vw, 34px);
+    line-height: 1.18;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .vocab-minimal-counter { margin-inline: 0; }
+  .vocab-progress-line { margin-inline: 0; }
+  .vocab-card-controls { margin-inline: 0; }
+}
+
+@media (max-width: 390px) {
+  .vocab-card { min-height: 440px; }
+  .vocab-face { padding-inline: 56px; }
+  .vocab-face strong,
+  .vocab-face strong.term-single-line,
+  .vocab-face strong.term-long { font-size: clamp(22px, 7vw, 30px); }
+}
+
+/* Keep study-card feedback visible in embedded mobile browsers. */
+@media (prefers-reduced-motion: reduce) {
+  .vocab-card-inner,
+  .flashcard-inner {
+    transition-property: transform, opacity !important;
+    transition-duration: 190ms !important;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1) !important;
+  }
+}

@@ -917,14 +917,13 @@ function undoVocabularyDecision() {
   vocabRotation = 0;
   save();
   const card = $("#vocabCard");
-  if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
-    card.animate(
-      [
-        { transform: "translateX(-24px)", opacity: 0.35 },
-        { transform: "translateX(0)", opacity: 1 },
-      ],
-      { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
-    );
+  card.animate(
+    [
+      { transform: "translateX(-24px)", opacity: 0.35 },
+      { transform: "translateX(0)", opacity: 1 },
+    ],
+    { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+  );
 }
 function clearVocabularyDrag() {
   const card = $("#vocabCard");
@@ -956,14 +955,7 @@ async function animateVocabularyDecision(step, fast = false) {
   const card = $("#vocabCard");
   const tint = card.querySelector(".vocab-swipe-tint");
   const direction = step > 0 ? 1 : -1;
-  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   vocabSwipeAnimating = true;
-  if (reduced) {
-    clearVocabularyDrag();
-    moveVocabulary(step, false);
-    vocabSwipeAnimating = false;
-    return;
-  }
   tint.classList.toggle("is-known", direction > 0);
   tint.classList.toggle("is-learning", direction < 0);
   const from = card.style.transform || "translateX(0) rotate(0deg)";
@@ -1040,7 +1032,6 @@ function flipCard(direction = 1) {
   renderCard();
 }
 function animateStudyCard(element, step) {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   element.animate(
     [
       {
