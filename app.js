@@ -14,6 +14,39 @@ const SUPABASE_URL = "https://xwdxfbgazlplyiglzecm.supabase.co",
   SUPABASE_KEY = "sb_publishable_yNV81pVLwznAKRN2fH3PBQ_ptbNVmFh";
 const AVATARS = Array.from({ length: 30 }, (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`);
 const CARD_STYLES = ["classic", "sage", "sky", "lilac", "mint", "ocean", "sunset", "cocoa", "lemon", "lavender", "noir", "candy"];
+const ACHIEVEMENT_SEEN_KEY = "un-charta-achievements-seen-v1";
+const ACHIEVEMENTS = [
+  ["first-step", "Перший крок", "Вивчити першу статтю", "✦", "articles", 1],
+  ["article-5", "Гарний початок", "Вивчити 5 статей", "☀", "articles", 5],
+  ["article-10", "Десятка", "Вивчити 10 статей", "Ⅹ", "articles", 10],
+  ["article-20", "Пів шляху", "Вивчити 20 статей", "◐", "articles", 20],
+  ["article-30", "Майже знавець", "Вивчити 30 статей", "◆", "articles", 30],
+  ["article-39", "Хранитель Статуту", "Вивчити всі 39 статей", "♛", "articles", 39],
+  ["word-1", "Перше слово", "Вивчити перше слово", "A", "words", 1],
+  ["word-10", "Словниковий старт", "Вивчити 10 слів", "Aa", "words", 10],
+  ["word-25", "Чверть сотні", "Вивчити 25 слів", "25", "words", 25],
+  ["word-50", "Wortjäger", "Вивчити 50 слів", "W", "words", 50],
+  ["word-100", "Сотня слів", "Вивчити 100 слів", "100", "words", 100],
+  ["word-150", "Поліглот", "Вивчити всі 150 слів", "∞", "words", 150],
+  ["review-1", "Друга зустріч", "Зробити перше повторення", "↻", "reviews", 1],
+  ["review-10", "Пам’ять міцнішає", "Зробити 10 повторень", "10", "reviews", 10],
+  ["review-25", "Без прогалин", "Зробити 25 повторень", "◎", "reviews", 25],
+  ["review-50", "Майстер повторень", "Зробити 50 повторень", "50", "reviews", 50],
+  ["streak-2", "Повернувся", "Вчитися 2 дні поспіль", "Ⅱ", "streak", 2],
+  ["streak-3", "Тримаю темп", "Вчитися 3 дні поспіль", "Ⅲ", "streak", 3],
+  ["streak-7", "Тиждень сили", "Вчитися 7 днів поспіль", "7", "streak", 7],
+  ["streak-14", "Залізна звичка", "Вчитися 14 днів поспіль", "⚡", "streak", 14],
+  ["hard-1", "Знайшов слабке місце", "Позначити складну статтю", "!", "hard", 1],
+  ["hard-5", "Чесний із собою", "Позначити 5 складних статей", "!!", "hard", 5],
+  ["hard-10", "Сміливий дослідник", "Опрацювати 10 складних статей", "▲", "hard", 10],
+  ["note-1", "Власна думка", "Створити першу нотатку", "✎", "notes", 1],
+  ["note-5", "Конспектувальник", "Створити 5 нотаток", "▤", "notes", 5],
+  ["days-5", "Постійний студент", "Вчитися у 5 різних днів", "5d", "days", 5],
+  ["days-10", "Дисципліна", "Вчитися у 10 різних днів", "10d", "days", 10],
+  ["plan-1", "День виконано", "Виконати перший денний план", "✓", "plans", 1],
+  ["plan-5", "За планом", "Виконати 5 денних планів", "✓5", "plans", 5],
+  ["balanced", "Подвійна сила", "Вивчити 20 статей і 50 слів", "✧", "balanced", 1],
+].map(([id, name, description, icon, metric, goal]) => ({ id, name, description, icon, metric, goal }));
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const blankState = () => ({
@@ -558,6 +591,58 @@ function avatarMarkup(avatar = "avatar-03", customAvatar = "", extraClass = "") 
   const id = AVATARS.includes(avatar) ? avatar : "avatar-03";
   return `<span class="avatar-art ${id} ${safe(extraClass)}" aria-hidden="true"></span>`;
 }
+function achievementStats(source = state) {
+  const learned = Array.isArray(source.learned) ? source.learned.length : Number(source.learned || 0);
+  const words = Array.isArray(source.vocabLearned) ? source.vocabLearned.length : Number(source.words || 0);
+  const hard = source.difficulty
+    ? Object.values(source.difficulty).filter((value) => value === "hard").length
+    : Number(source.hard || 0);
+  const reviews = source.reviewLevel
+    ? Object.values(source.reviewLevel).reduce((sum, value) => sum + Number(value || 0), 0)
+    : Number(source.reviews || 0);
+  const notes = source.notes ? Object.values(source.notes).filter(Boolean).length : Number(source.notes || 0);
+  const days = Array.isArray(source.studyDates) ? new Set(source.studyDates).size : Number(source.days || 0);
+  const plans = source.dailyPlans
+    ? Object.values(source.dailyPlans).filter((plan) => Array.isArray(plan) && plan.length && plan.every((n) => (source.learned || []).includes(n))).length
+    : Number(source.plans || 0);
+  const currentStreak = source === state ? streak() : Number(source.streak || 0);
+  return { articles: learned, words, hard, reviews, notes, days, plans, streak: currentStreak, balanced: learned >= 20 && words >= 50 ? 1 : 0 };
+}
+function achievementSummary(source = state) {
+  const stats = achievementStats(source);
+  const unlocked = ACHIEVEMENTS.filter((item) => stats[item.metric] >= item.goal);
+  const xp = unlocked.length * 80 + stats.articles * 20 + stats.words * 3 + stats.reviews * 5 + stats.days * 10;
+  const level = Math.max(1, Math.floor(xp / 400) + 1);
+  const levelXp = xp % 400;
+  const titles = [[12, "Легенда Lernstudio"], [9, "Майстер Статуту"], [7, "Знавець"], [5, "Дослідник"], [3, "Наполегливий студент"], [1, "Новачок"]];
+  return { stats, unlocked, xp, level, levelXp, title: titles.find(([needed]) => level >= needed)[1] };
+}
+let achievementToastTimer;
+function announceNewAchievements(unlocked) {
+  let seen;
+  try { seen = JSON.parse(localStorage.getItem(ACHIEVEMENT_SEEN_KEY) || "null"); } catch { seen = null; }
+  const ids = unlocked.map((item) => item.id);
+  if (!Array.isArray(seen)) {
+    localStorage.setItem(ACHIEVEMENT_SEEN_KEY, JSON.stringify(ids));
+    return;
+  }
+  const newest = [...unlocked].reverse().find((item) => !seen.includes(item.id));
+  if (!newest) return;
+  localStorage.setItem(ACHIEVEMENT_SEEN_KEY, JSON.stringify([...new Set([...seen, ...ids])]));
+  $("#achievementToastIcon").textContent = newest.icon;
+  $("#achievementToastName").textContent = newest.name;
+  const toast = $("#achievementToast");
+  toast.hidden = false;
+  requestAnimationFrame(() => toast.classList.add("show"));
+  clearTimeout(achievementToastTimer);
+  achievementToastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => { toast.hidden = true; }, 240);
+  }, 3200);
+}
+function badgeMarkup(summary, limit = 3) {
+  return summary.unlocked.slice(-limit).reverse().map((item) => `<span class="mini-badge" title="${safe(item.name)}">${safe(item.icon)}</span>`).join("") || `<span class="mini-badge locked" title="Досягнення ще попереду">?</span>`;
+}
 function renderAccount() {
   const hard = Object.values(state.difficulty).filter(
     (x) => x === "hard",
@@ -566,6 +651,18 @@ function renderAccount() {
   $("#accountHard").textContent = hard;
   $("#accountStreak").textContent = streak();
   $("#accountReview").textContent = dueArticles().length;
+  const achievements = achievementSummary();
+  $("#achievementTitle").textContent = achievements.title;
+  $("#achievementLevel").textContent = `${achievements.level} рівень`;
+  $("#achievementXp").textContent = `${achievements.xp} XP`;
+  $("#achievementCount").textContent = `${achievements.unlocked.length} / ${ACHIEVEMENTS.length}`;
+  $("#achievementProgress").style.width = `${(achievements.levelXp / 400) * 100}%`;
+  $("#achievementGrid").innerHTML = ACHIEVEMENTS.map((item) => {
+    const value = achievements.stats[item.metric];
+    const unlocked = value >= item.goal;
+    return `<article class="achievement${unlocked ? " unlocked" : ""}" title="${safe(item.description)}"><span>${safe(item.icon)}</span><div><strong>${safe(item.name)}</strong><small>${unlocked ? "Отримано" : `${Math.min(value, item.goal)} / ${item.goal}`}</small></div></article>`;
+  }).join("");
+  announceNewAchievements(achievements.unlocked);
   $("#accountThemeName").textContent =
     document.documentElement.dataset.theme === "dark"
       ? "Темна тема"
@@ -607,7 +704,8 @@ function renderAccount() {
               const customAvatar = presence?.custom_avatar || p.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
               const savedCardStyle = presence?.card_style || p.card_style;
               const cardStyle = CARD_STYLES.includes(savedCardStyle) ? savedCardStyle : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
-              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}" data-profile-style="${cardStyle}"><b class="leader-rank">${i + 1}</b><span class="leader-avatar" aria-hidden="true">${avatarMarkup(avatar, customAvatar)}</span><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
+              const publicAchievements = achievementSummary({ learned: p.learned_count, hard: p.hard_count, streak: p.streak });
+              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}" data-profile-style="${cardStyle}"><b class="leader-rank">${i + 1}</b><span class="leader-avatar" aria-hidden="true">${avatarMarkup(avatar, customAvatar)}</span><span class="leader-copy"><span class="leader-name-line"><strong>${safe(p.display_name)}</strong><small>Рівень ${publicAchievements.level}</small></span><span class="leader-meta"><small>${p.learned_count} з 39 статей</small><span class="leader-badges">${badgeMarkup(publicAchievements)}</span>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
             },
           )
           .join("")
@@ -1228,6 +1326,9 @@ $("#leaderboardList").addEventListener("click", (e) => {
   $("#profileLearned").textContent = `${p.learned_count} / 39`;
   $("#profileHard").textContent = p.hard_count;
   $("#profileStreak").textContent = `${p.streak} днів`;
+  const publicAchievements = achievementSummary({ learned: p.learned_count, hard: p.hard_count, streak: p.streak });
+  $("#profileLevel").textContent = `${publicAchievements.level} · ${publicAchievements.title}`;
+  $("#profileBadges").innerHTML = badgeMarkup(publicAchievements, 5);
   $("#profileDialog").showModal();
 });
 $("#search").addEventListener("input", renderArticles);

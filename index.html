@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=47" />
+    <link rel="stylesheet" href="styles.css?v=48" />
   </head>
   <body class="tracker-open">
     <a class="skip" href="#content">До вмісту</a>
@@ -267,6 +267,18 @@
             ><strong id="accountReview">0</strong><small>статей у черзі</small>
           </article>
           </div>
+          <article class="account-card achievements-card">
+            <div class="achievement-summary">
+              <div>
+                <span class="metric-label">Досягнення</span>
+                <h3 id="achievementTitle">Новачок</h3>
+                <p><b id="achievementLevel">1 рівень</b><span id="achievementXp">0 XP</span></p>
+              </div>
+              <strong id="achievementCount">0 / 30</strong>
+            </div>
+            <div class="achievement-progress" aria-label="Прогрес рівня"><i id="achievementProgress"></i></div>
+            <div class="achievement-grid" id="achievementGrid"></div>
+          </article>
           <article class="account-card appearance-card">
             <div class="settings-heading"><div><span class="metric-label">Оформлення</span><h3>Вигляд профілю</h3></div><div class="theme-inline"><span id="accountThemeName">Світла тема</span><button id="accountTheme">Змінити</button></div></div>
             <div class="personalization-section">
@@ -399,6 +411,10 @@
             <span>Серія</span><strong id="profileStreak">0 днів</strong>
           </div>
         </div>
+        <div class="profile-achievements">
+          <div><span>Рівень</span><strong id="profileLevel">1</strong></div>
+          <div class="profile-badges" id="profileBadges" aria-label="Найкращі досягнення"></div>
+        </div>
       </form>
     </dialog>
     <dialog id="vocabSettingsDialog" class="vocab-settings-dialog">
@@ -421,6 +437,9 @@
         </div>
       </form>
     </dialog>
+    <div class="achievement-toast" id="achievementToast" role="status" aria-live="polite" hidden>
+      <span id="achievementToastIcon"></span><div><small>Нове досягнення</small><strong id="achievementToastName"></strong></div>
+    </div>
     <dialog id="avatarDialog" class="avatar-dialog">
       <form method="dialog">
         <div class="dialog-head">
@@ -460,6 +479,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=50"></script>
+    <script src="app.js?v=51"></script>
   </body>
 </html>
