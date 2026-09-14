@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11120f">
+  <title>UN Charta Lerntracker</title>
+  <style>
+    :root { --ink:#171813; --paper:#f2efe6; --card:#faf8f1; --line:#cbc6b7; --red:#d3422f; --green:#2f7055; --muted:#6e6d65; --shadow:6px 6px 0 #171813; }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 Georgia,serif}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.2;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.11'/%3E%3C/svg%3E")}
+    .wrap{width:min(1100px,calc(100% - 32px));margin:auto;padding:36px 0 64px}
+    header{border:2px solid var(--ink);background:var(--card);box-shadow:var(--shadow);padding:clamp(24px,5vw,52px);position:relative;overflow:hidden}
+    header:after{content:"UN";position:absolute;right:-10px;bottom:-48px;font:bold 190px/1 Arial,sans-serif;color:transparent;-webkit-text-stroke:2px #d8d3c5;z-index:0}
+    header>*{position:relative;z-index:1}.kicker{font:700 12px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--red)}
+    h1{font:900 clamp(38px,8vw,82px)/.92 Arial,sans-serif;letter-spacing:-.06em;margin:16px 0 18px;max-width:760px}
+    .intro{max-width:650px;font-size:18px;margin:0;color:#45463f}.private{display:inline-block;margin-top:22px;padding:8px 12px;border:1px solid var(--green);color:var(--green);font:700 13px Arial,sans-serif;background:#e6efe8}
+    .dashboard{display:grid;grid-template-columns:1fr 2fr;gap:18px;margin:34px 0 20px}
+    .stat,.controls{border:2px solid var(--ink);background:var(--card);padding:20px}.number{font:900 46px/1 Arial,sans-serif}.label{font:700 12px Arial,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-top:8px}
+    .bar{height:14px;border:2px solid var(--ink);margin-top:18px;background:#fff}.bar>span{display:block;height:100%;width:0;background:var(--green);transition:width .35s ease}
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}input[type=search]{flex:1;min-width:210px;border:2px solid var(--ink);background:#fff;padding:12px 14px;font:16px Arial,sans-serif;color:var(--ink)}
+    button{border:2px solid var(--ink);background:var(--card);padding:11px 14px;font:700 13px Arial,sans-serif;cursor:pointer;color:var(--ink)}button:hover,button[aria-pressed=true]{background:var(--ink);color:#fff}button:focus-visible,input:focus-visible,.check:focus-visible{outline:4px solid #e9a79d;outline-offset:2px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.article{position:relative;border:2px solid var(--ink);background:var(--card);min-height:134px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;transition:.18s ease;cursor:pointer}.article:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
+    .article.done{background:#dce9df;border-color:var(--green)}.article.hidden{display:none}.article-no{font:900 26px/1 Arial,sans-serif;letter-spacing:-.03em}.article-de{color:var(--muted);font-style:italic;margin-top:6px}.check{align-self:flex-end;width:32px;height:32px;border:2px solid var(--ink);background:white;display:grid;place-items:center;font:900 20px Arial,sans-serif}.done .check{background:var(--green);color:#fff;border-color:var(--green)}
+    .empty{display:none;text-align:center;padding:44px;border:2px dashed var(--line);color:var(--muted)}footer{margin-top:28px;color:var(--muted);font:13px Arial,sans-serif;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    @media(max-width:760px){.dashboard{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}header:after{font-size:130px}.wrap{width:min(100% - 20px,1100px);padding-top:10px}}
+    @media(max-width:440px){.grid{grid-template-columns:1fr}.article{min-height:108px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="kicker">Мова фаху · Lernfortschritt</div>
+      <h1>UN Charta<br>Lerntracker</h1>
+      <p class="intro">Відмічай статті, які вже вивчив. Прогрес автоматично зберігається у твоєму браузері.</p>
+      <span class="private">✓ Кожен відвідувач бачить лише власні галочки</span>
+    </header>
+    <section class="dashboard" aria-label="Прогрес і керування">
+      <div class="stat"><div><span class="number" id="doneCount">0</span><span class="number"> / 39</span></div><div class="label">Статей вивчено</div><div class="bar" aria-hidden="true"><span id="progressBar"></span></div></div>
+      <div class="controls">
+        <input id="search" type="search" placeholder="Знайти статтю, наприклад 51" aria-label="Пошук статті">
+        <button class="filter" data-filter="all" aria-pressed="true">Усі</button>
+        <button class="filter" data-filter="todo" aria-pressed="false">Ще вчу</button>
+        <button class="filter" data-filter="done" aria-pressed="false">Вивчені</button>
+        <button id="reset">Скинути</button>
+      </div>
+    </section>
+    <section class="grid" id="grid" aria-label="Статті Статуту ООН"></section>
+    <p class="empty" id="empty">За цим запитом нічого не знайдено.</p>
+    <footer><span>Статті з навчального документа «Статут ООН»</span><span>Дані зберігаються локально · localStorage</span></footer>
+  </main>
+  <script>
+    const articles=[1,2,3,4,5,6,7,8,9,10,11,17,18,20,22,23,24,27,28,32,33,34,41,42,43,45,50,51,55,61,62,75,92,97,98,102,103,110,111];
+    const key='un-charta-progress-v1'; let learned=new Set(JSON.parse(localStorage.getItem(key)||'[]')); let filter='all';
+    const grid=document.querySelector('#grid'),count=document.querySelector('#doneCount'),bar=document.querySelector('#progressBar'),search=document.querySelector('#search'),empty=document.querySelector('#empty');
+    function save(){localStorage.setItem(key,JSON.stringify([...learned].sort((a,b)=>a-b)))}
+    function render(){grid.innerHTML=articles.map(n=>`<article class="article ${learned.has(n)?'done':''}" data-n="${n}" tabindex="0" role="checkbox" aria-checked="${learned.has(n)}"><div><div class="article-no">Стаття ${n}</div><div class="article-de">Artikel ${n}</div></div><span class="check" aria-hidden="true">${learned.has(n)?'✓':''}</span></article>`).join(''); update();}
+    function update(){const q=search.value.trim();let visible=0;document.querySelectorAll('.article').forEach(el=>{const n=+el.dataset.n,match=(!q||String(n).includes(q))&&(filter==='all'||(filter==='done')===learned.has(n));el.classList.toggle('hidden',!match);if(match)visible++});count.textContent=learned.size;bar.style.width=(learned.size/articles.length*100)+'%';empty.style.display=visible?'none':'block'}
+    function toggle(el){const n=+el.dataset.n;learned.has(n)?learned.delete(n):learned.add(n);save();render()}
+    grid.addEventListener('click',e=>{const el=e.target.closest('.article');if(el)toggle(el)});grid.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.article')){e.preventDefault();toggle(e.target)}});
+    search.addEventListener('input',update);document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.setAttribute('aria-pressed',x===b));update()}));
+    document.querySelector('#reset').addEventListener('click',()=>{if(confirm('Скинути всі позначки?')){learned.clear();save();render()}});render();
+  </script>
+</body>
+</html>
