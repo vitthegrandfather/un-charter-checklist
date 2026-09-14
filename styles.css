@@ -2080,19 +2080,20 @@ button {
   grid-template-columns: minmax(0, 1fr);
   align-items: end;
 }
-.hero-top h1 { min-width: 0; }
+.hero-top h1 {
+  min-width: 0;
+  padding-right: 170px;
+}
 .top-actions {
   min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  display: block;
   margin-bottom: 25px;
 }
 .top-actions .tabs {
   display: grid;
-  grid-template-columns: repeat(5, max-content);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
+  width: 100%;
   margin: 0;
 }
 .top-actions .tab,
@@ -2106,7 +2107,9 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 0 0 auto;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 .utility-actions .theme-btn {
   width: 46px;
@@ -2125,12 +2128,16 @@ button {
     gap: 16px;
   }
   .hero h1 { margin: 16px 0 20px; }
+  .hero-top h1 { padding-right: 0; }
   .top-actions {
     display: block;
     margin: 0;
   }
   .top-actions .tabs { display: none; }
-  .utility-actions { justify-content: flex-end; }
+  .utility-actions {
+    position: static;
+    justify-content: flex-end;
+  }
 }
 
 @media (max-width: 520px) {
