@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=40" />
+    <link rel="stylesheet" href="styles.css?v=41" />
   </head>
   <body class="tracker-open">
     <a class="skip" href="#content">До вмісту</a>
@@ -246,8 +246,6 @@
                   <strong id="accountEmail">Гостьовий режим</strong>
                   <button id="editName" class="edit-name" type="button" aria-label="Змінити ім’я" title="Змінити ім’я" hidden>✎</button>
                 </div>
-                <p id="accountLead">Увійдіть, щоб зберігати навчання у хмарі.</p>
-                <small id="accountSync">Прогрес зберігається лише на цьому пристрої</small>
               </div>
             </div>
             <button class="ink-btn" id="accountAuth">
@@ -311,18 +309,14 @@
           </div>
         </section>
       </section>
-      <footer>
-        Увійдіть, щоб прогрес зберігався в хмарі та синхронізувався між
-        пристроями.
-      </footer>
     </main>
     <nav class="bottom-nav" aria-label="Основна навігація">
       <button class="active" data-bottom-view="tracker">
-        <span>▦</span>Усі статті
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg></span>Статті
       </button>
-      <button data-bottom-view="vocabulary"><span>Аа</span>Слова</button>
-      <button data-bottom-view="ranking"><span>★</span>Рейтинг</button>
-      <button data-bottom-view="account"><span>●</span>Акаунт</button>
+      <button data-bottom-view="vocabulary"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22V5.5Z"/><path d="M20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22V5.5Z"/></svg></span>Слова</button>
+      <button data-bottom-view="ranking"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-6h4v6M10 20V9h4v11M15 20V4h4v16"/><path d="M3 20h18"/></svg></span>Рейтинг</button>
+      <button data-bottom-view="account"><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg></span>Акаунт</button>
     </nav>
     <dialog id="noteDialog">
       <form method="dialog">
@@ -452,6 +446,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=42"></script>
+    <script src="app.js?v=43"></script>
   </body>
 </html>

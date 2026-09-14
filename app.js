@@ -72,10 +72,14 @@ let cards = [],
   cardIndex = 0,
   flipped = false,
   cardRotation = 0,
+  cardPointerStart = null,
+  cardSwipeHandled = false,
   noteArticle = null,
   reviewQueue = [],
   reviewIndex = 0,
   reviewFlipped = false,
+  reviewPointerStart = null,
+  reviewSwipeHandled = false,
   reviewResults = new Map(),
   currentUser = null,
   cloudTimer = null,
@@ -580,12 +584,6 @@ function renderAccount() {
     button.setAttribute("aria-pressed", String(selected));
   });
   $("#editName").hidden = !currentUser;
-  $("#accountSync").textContent = currentUser
-    ? "Синхронізація між пристроями активна ✓"
-    : "Прогрес зберігається лише на цьому пристрої";
-  $("#accountLead").textContent = currentUser
-    ? "Ваш прогрес збережений і бере участь у рейтингу."
-    : "Увійдіть, щоб зберігати навчання у хмарі та бачити групу.";
   $("#accountAuth").textContent = currentUser
     ? "Керувати акаунтом"
     : "Увійти або зареєструватися";
@@ -1148,17 +1146,16 @@ $("#vocabCard").addEventListener("click", () => {
   flipVocabulary();
 });
 $("#vocabCard").addEventListener("pointerdown", (event) => {
-  if (!vocabLearnMode) return;
   vocabPointerStart = { x: event.clientX, y: event.clientY };
 });
 $("#vocabCard").addEventListener("pointerup", (event) => {
-  if (!vocabLearnMode || !vocabPointerStart) return;
+  if (!vocabPointerStart) return;
   const dx = event.clientX - vocabPointerStart.x;
   const dy = event.clientY - vocabPointerStart.y;
   vocabPointerStart = null;
   if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy)) return;
   vocabSwipeHandled = true;
-  moveVocabulary(dx > 0 ? 1 : -1);
+  moveVocabulary(vocabLearnMode ? (dx > 0 ? 1 : -1) : (dx < 0 ? 1 : -1));
 });
 $("#vocabCard").addEventListener("pointercancel", () => {
   vocabPointerStart = null;
@@ -1249,7 +1246,26 @@ $("#noteDialog").addEventListener("close", () => {
   }
 });
 $("#flashcard").addEventListener("click", () => {
+  if (cardSwipeHandled) {
+    cardSwipeHandled = false;
+    return;
+  }
   flipCard(1);
+});
+$("#flashcard").addEventListener("pointerdown", (event) => {
+  cardPointerStart = { x: event.clientX, y: event.clientY };
+});
+$("#flashcard").addEventListener("pointerup", (event) => {
+  if (!cardPointerStart) return;
+  const dx = event.clientX - cardPointerStart.x;
+  const dy = event.clientY - cardPointerStart.y;
+  cardPointerStart = null;
+  if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy)) return;
+  cardSwipeHandled = true;
+  moveCard(dx < 0 ? 1 : -1);
+});
+$("#flashcard").addEventListener("pointercancel", () => {
+  cardPointerStart = null;
 });
 $("#prevArticle").addEventListener("click", () => moveCard(-1));
 $("#nextArticle").addEventListener("click", () => moveCard(1));
@@ -1290,8 +1306,27 @@ document.addEventListener("fullscreenchange", () => {
     : "На весь екран";
 });
 $("#reviewCard").addEventListener("click", () => {
+  if (reviewSwipeHandled) {
+    reviewSwipeHandled = false;
+    return;
+  }
   reviewFlipped = !reviewFlipped;
   renderReviewCard();
+});
+$("#reviewCard").addEventListener("pointerdown", (event) => {
+  reviewPointerStart = { x: event.clientX, y: event.clientY };
+});
+$("#reviewCard").addEventListener("pointerup", (event) => {
+  if (!reviewPointerStart) return;
+  const dx = event.clientX - reviewPointerStart.x;
+  const dy = event.clientY - reviewPointerStart.y;
+  reviewPointerStart = null;
+  if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy)) return;
+  reviewSwipeHandled = true;
+  finishReview(dx > 0);
+});
+$("#reviewCard").addEventListener("pointercancel", () => {
+  reviewPointerStart = null;
 });
 $("#reviewAgain").addEventListener("click", () => finishReview(false));
 $("#reviewKnown").addEventListener("click", () => finishReview(true));
