@@ -350,7 +350,7 @@ function articleCard(n) {
     r = has("review", n),
     d = state.difficulty[n] || "",
     note = state.notes[n];
-  return `<article class="article ${l ? "learned" : ""} ${r ? "review" : ""} ${d === "hard" ? "hard" : ""}" data-n="${n}" tabindex="0" aria-label="Відкрити картку статті ${n}"><div class="article-title">Стаття ${n}<small>Artikel ${n}</small></div><div class="article-state">${l ? "Вивчено" : ""}${r ? " · Повторити" : ""}${d === "hard" ? " · Складна" : ""}</div><button class="hard-toggle ${d === "hard" ? "state-on" : ""}" data-level="hard">${d === "hard" ? "✓ Позначено складною" : "Позначити як складну"}</button><div class="article-actions"><button class="learn-toggle ${l ? "state-on" : ""}">${l ? "✓ Вивчено" : "Позначити вивчено"}</button><button class="review-toggle ${r ? "state-on" : ""}">↻ Повторити</button><button class="note-toggle ${note ? "state-on" : ""}">${note ? "✎ Є нотатка" : "＋ Нотатка"}</button></div></article>`;
+  return `<article class="article ${l ? "learned" : ""} ${r ? "review" : ""} ${d === "hard" ? "hard" : ""}" data-n="${n}" tabindex="0" aria-label="Відкрити картку статті ${n}"><div class="article-title">Стаття ${n}<small>Artikel ${n}</small></div><div class="article-state">${l ? "Вивчено" : ""}${r ? " · Повторити" : ""}${d === "hard" ? " · Складна" : ""}</div><button class="learn-toggle article-primary ${l ? "state-on" : ""}">${l ? "✓ Вивчено" : "Позначити вивчено"}</button><div class="article-actions"><button class="hard-toggle ${d === "hard" ? "state-on" : ""}" data-level="hard">${d === "hard" ? "✓ Складна" : "Позначити як складну"}</button><button class="review-toggle ${r ? "state-on" : ""}">↻ Повторити</button></div><button class="note-toggle article-note ${note ? "state-on" : ""}">${note ? "✎ Є нотатка" : "＋ Нотатка"}</button></article>`;
 }
 function renderArticles() {
   const q = $("#search").value.trim();
@@ -773,6 +773,8 @@ document.addEventListener("keydown", (e) => {
     return;
   if (e.key === "ArrowLeft") moveCard(-1);
   if (e.key === "ArrowRight") moveCard(1);
+  if (e.key === "ArrowUp") moveCard(-1);
+  if (e.key === "ArrowDown") moveCard(1);
   if (e.code === "Space") {
     e.preventDefault();
     flipped = !flipped;
