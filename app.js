@@ -395,6 +395,7 @@ function renderAccount() {
       : "Світла тема";
   $("#accountEmail").textContent =
     currentProfile?.display_name || "Гостьовий режим";
+  $("#editName").hidden = !currentUser;
   $("#accountSync").textContent = currentUser
     ? currentUser.email
     : "Прогрес зберігається лише на цьому пристрої";
@@ -572,6 +573,14 @@ $$(".bottom-nav button").forEach((b) =>
   b.addEventListener("click", () => switchView(b.dataset.bottomView)),
 );
 $("#accountAuth").addEventListener("click", openAuth);
+$("#editName").addEventListener("click", () => {
+  $("#authName").value =
+    currentProfile?.display_name ||
+    currentUser?.user_metadata?.display_name ||
+    "";
+  setAuthMode("profile");
+  openAuth();
+});
 $("#accountTheme").addEventListener("click", () =>
   applyTheme(
     document.documentElement.dataset.theme === "dark" ? "light" : "dark",

@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=7" />
   </head>
   <body>
     <a class="skip" href="#content">До вмісту</a>
@@ -195,7 +195,19 @@
         <div class="account-grid">
           <article class="account-card account-identity">
             <span class="metric-label">Профіль</span>
-            <strong id="accountEmail">Гостьовий режим</strong>
+            <div class="account-name-row">
+              <strong id="accountEmail">Гостьовий режим</strong>
+              <button
+                id="editName"
+                class="edit-name"
+                type="button"
+                aria-label="Змінити ім’я"
+                title="Змінити ім’я"
+                hidden
+              >
+                ✎
+              </button>
+            </div>
             <small id="accountSync"
               >Прогрес зберігається лише на цьому пристрої</small
             >
@@ -350,6 +362,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
   </body>
 </html>
