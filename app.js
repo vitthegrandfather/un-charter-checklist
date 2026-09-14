@@ -26,6 +26,8 @@ const blankState = () => ({
   studyDates: [],
   dailyPlans: {},
   vocabLearned: [],
+  profileAvatar: "🦊",
+  cardStyle: "classic",
 });
 function normalize(raw = {}) {
   const s = Object.assign(blankState(), raw);
@@ -39,6 +41,10 @@ function normalize(raw = {}) {
   s.hard.forEach((n) => {
     if (!s.difficulty[n]) s.difficulty[n] = "hard";
   });
+  const avatars = ["🦊", "🐼", "🐸", "🐯", "🐙", "🐧", "🐝", "🦉"];
+  const cardStyles = ["classic", "sage", "sky", "lilac"];
+  if (!avatars.includes(s.profileAvatar)) s.profileAvatar = "🦊";
+  if (!cardStyles.includes(s.cardStyle)) s.cardStyle = "classic";
   return s;
 }
 const oldLearned = JSON.parse(localStorage.getItem(OLD_KEY) || "[]");
@@ -243,13 +249,14 @@ async function trackPresence(force = false) {
   const vocabOpen = $("#vocabularyView")?.classList.contains("active");
   const article = cardsOpen && cards.length ? currentCard()?.n || null : null;
   const activity = vocabOpen ? "vocabulary" : cardsOpen ? "article" : "online";
-  const signature = `${currentUser.id}:${activity}:${article || ""}`;
+  const signature = `${currentUser.id}:${activity}:${article || ""}:${state.profileAvatar}`;
   if (!force && signature === lastPresenceSignature) return;
   lastPresenceSignature = signature;
   await realtimeChannel.track({
     user_id: currentUser.id,
     article,
     activity,
+    avatar: state.profileAvatar,
     updated_at: new Date().toISOString(),
   });
 }
@@ -277,7 +284,7 @@ async function startRealtime() {
 }
 function renderAuthStatus() {
   if (currentUser) {
-    $("#authBtn").textContent = "Акаунт ✓";
+    $("#authBtn").textContent = `${state.profileAvatar} Акаунт`;
     setCloudStatus("Прогрес синхронізується між пристроями");
     $("#signOutBtn").hidden = false;
     $("#authSubmit").hidden = true;
@@ -509,6 +516,7 @@ function dueArticles() {
   );
 }
 function renderAll() {
+  document.documentElement.dataset.cardStyle = state.cardStyle;
   renderMetrics();
   renderArticles();
   $("#reviewBadge").textContent = dueArticles().length;
@@ -538,6 +546,17 @@ function renderAccount() {
       : "Світла тема";
   $("#accountEmail").textContent =
     currentProfile?.display_name || "Гостьовий режим";
+  $("#accountAvatar").textContent = state.profileAvatar;
+  $$("#avatarPicker [data-avatar]").forEach((button) => {
+    const selected = button.dataset.avatar === state.profileAvatar;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  $$("#cardStylePicker [data-card-style]").forEach((button) => {
+    const selected = button.dataset.cardStyle === state.cardStyle;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
   $("#editName").hidden = !currentUser;
   $("#accountSync").textContent = currentUser
     ? "Синхронізація між пристроями активна ✓"
@@ -562,7 +581,8 @@ function renderAccount() {
                 : presence
                   ? "Зараз на сайті"
                   : "";
-              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}"><b class="leader-rank">${i + 1}</b><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
+              const avatar = presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "👤");
+              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}"><b class="leader-rank">${i + 1}</b><span class="leader-avatar" aria-hidden="true">${safe(avatar)}</span><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
             },
           )
           .join("")
@@ -918,12 +938,29 @@ $("#accountTheme").addEventListener("click", () =>
     document.documentElement.dataset.theme === "dark" ? "light" : "dark",
   ),
 );
+$("#avatarPicker").addEventListener("click", (e) => {
+  const button = e.target.closest("[data-avatar]");
+  if (!button) return;
+  state.profileAvatar = button.dataset.avatar;
+  lastPresenceSignature = "";
+  save(false);
+  renderAuthStatus();
+});
+$("#cardStylePicker").addEventListener("click", (e) => {
+  const button = e.target.closest("[data-card-style]");
+  if (!button) return;
+  state.cardStyle = button.dataset.cardStyle;
+  save(false);
+});
 $("#leaderboardList").addEventListener("click", (e) => {
   const b = e.target.closest("[data-profile]");
   if (!b) return;
   const p = groupProfiles.find((x) => x.user_id === b.dataset.profile);
   if (!p) return;
   const rank = groupProfiles.indexOf(p) + 1;
+  const presence = onlineStudy.get(p.user_id);
+  $("#profileAvatar").textContent =
+    presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "👤");
   $("#profileName").textContent = p.display_name;
   $("#profileRank").textContent = `№ ${rank}`;
   $("#profileLearned").textContent = `${p.learned_count} / 39`;

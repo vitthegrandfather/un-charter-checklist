@@ -244,18 +244,21 @@
         <div class="account-grid">
           <article class="account-card account-identity">
             <span class="metric-label">Профіль</span>
-            <div class="account-name-row">
-              <strong id="accountEmail">Гостьовий режим</strong>
-              <button
-                id="editName"
-                class="edit-name"
-                type="button"
-                aria-label="Змінити ім’я"
-                title="Змінити ім’я"
-                hidden
-              >
-                ✎
-              </button>
+            <div class="account-profile-row">
+              <span class="profile-avatar" id="accountAvatar" aria-hidden="true">👤</span>
+              <div class="account-name-row">
+                <strong id="accountEmail">Гостьовий режим</strong>
+                <button
+                  id="editName"
+                  class="edit-name"
+                  type="button"
+                  aria-label="Змінити ім’я"
+                  title="Змінити ім’я"
+                  hidden
+                >
+                  ✎
+                </button>
+              </div>
             </div>
             <small id="accountSync"
               >Прогрес зберігається лише на цьому пристрої</small
@@ -287,6 +290,31 @@
             <span class="metric-label">Оформлення</span
             ><strong id="accountThemeName">Світла тема</strong
             ><button id="accountTheme">Змінити тему</button>
+          </article>
+          <article class="account-card personalization-card">
+            <span class="metric-label">Ваш стиль</span>
+            <div class="personalization-section">
+              <strong>Аватарка</strong>
+              <div class="avatar-picker" id="avatarPicker" aria-label="Виберіть аватарку">
+                <button data-avatar="🦊" aria-label="Лисиця">🦊</button>
+                <button data-avatar="🐼" aria-label="Панда">🐼</button>
+                <button data-avatar="🐸" aria-label="Жабка">🐸</button>
+                <button data-avatar="🐯" aria-label="Тигр">🐯</button>
+                <button data-avatar="🐙" aria-label="Восьминіг">🐙</button>
+                <button data-avatar="🐧" aria-label="Пінгвін">🐧</button>
+                <button data-avatar="🐝" aria-label="Бджола">🐝</button>
+                <button data-avatar="🦉" aria-label="Сова">🦉</button>
+              </div>
+            </div>
+            <div class="personalization-section">
+              <strong>Оформлення карток</strong>
+              <div class="card-style-picker" id="cardStylePicker" aria-label="Оформлення карток">
+                <button data-card-style="classic"><i></i><span>Класика</span></button>
+                <button data-card-style="sage"><i></i><span>Шавлія</span></button>
+                <button data-card-style="sky"><i></i><span>Небо</span></button>
+                <button data-card-style="lilac"><i></i><span>Лаванда</span></button>
+              </div>
+            </div>
           </article>
         </div>
       </section>
@@ -390,7 +418,7 @@
         <div class="dialog-head">
           <div>
             <span class="section-label">Учасник групи</span>
-            <h2 id="profileName">Профіль</h2>
+            <div class="profile-dialog-name"><span class="profile-avatar" id="profileAvatar" aria-hidden="true">👤</span><h2 id="profileName">Профіль</h2></div>
           </div>
           <button value="cancel" aria-label="Закрити">×</button>
         </div>
@@ -411,6 +439,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=30"></script>
+    <script src="app.js?v=31"></script>
   </body>
 </html>
