@@ -13,6 +13,7 @@ const OLD_KEY = "un-charta-progress-v1",
 const SUPABASE_URL = "https://xwdxfbgazlplyiglzecm.supabase.co",
   SUPABASE_KEY = "sb_publishable_yNV81pVLwznAKRN2fH3PBQ_ptbNVmFh";
 const AVATARS = Array.from({ length: 20 }, (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`);
+const CARD_STYLES = ["classic", "sage", "sky", "lilac", "mint", "ocean", "sunset", "cocoa", "lemon", "lavender", "noir", "candy"];
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const blankState = () => ({
@@ -43,13 +44,12 @@ function normalize(raw = {}) {
   s.hard.forEach((n) => {
     if (!s.difficulty[n]) s.difficulty[n] = "hard";
   });
-  const cardStyles = ["classic", "sage", "sky", "lilac"];
   const legacyAvatars = { "🦊": "avatar-03", "🐼": "avatar-08", "🐸": "avatar-13", "🐯": "avatar-14", "🐙": "avatar-06", "🐧": "avatar-02", "🐝": "avatar-09", "🦉": "avatar-18" };
   s.profileAvatar = legacyAvatars[s.profileAvatar] || s.profileAvatar;
   if (![...AVATARS, "custom"].includes(s.profileAvatar)) s.profileAvatar = "avatar-03";
   if (typeof s.customAvatar !== "string" || !/^data:image\/(?:png|jpeg|webp);base64,/.test(s.customAvatar) || s.customAvatar.length > 180000) s.customAvatar = "";
   if (s.profileAvatar === "custom" && !s.customAvatar) s.profileAvatar = "avatar-03";
-  if (!cardStyles.includes(s.cardStyle)) s.cardStyle = "classic";
+  if (!CARD_STYLES.includes(s.cardStyle)) s.cardStyle = "classic";
   return s;
 }
 const oldLearned = JSON.parse(localStorage.getItem(OLD_KEY) || "[]");
@@ -601,7 +601,7 @@ function renderAccount() {
               const avatar = presence?.avatar || p.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
               const customAvatar = presence?.custom_avatar || p.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
               const savedCardStyle = presence?.card_style || p.card_style;
-              const cardStyle = ["classic", "sage", "sky", "lilac"].includes(savedCardStyle) ? savedCardStyle : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
+              const cardStyle = CARD_STYLES.includes(savedCardStyle) ? savedCardStyle : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
               return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}" data-profile-style="${cardStyle}"><b class="leader-rank">${i + 1}</b><span class="leader-avatar" aria-hidden="true">${avatarMarkup(avatar, customAvatar)}</span><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
             },
           )
@@ -966,7 +966,9 @@ $("#avatarPicker").addEventListener("click", (e) => {
   save(false);
   renderAuthStatus();
   trackPresence(true);
+  $("#avatarDialog").close();
 });
+$("#editAvatar").addEventListener("click", () => $("#avatarDialog").showModal());
 $("#avatarUpload").addEventListener("change", (e) => {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -993,6 +995,7 @@ $("#avatarUpload").addEventListener("change", (e) => {
       renderAuthStatus();
       trackPresence(true);
       e.target.value = "";
+      $("#avatarDialog").close();
     };
     image.onerror = () => alert("Не вдалося прочитати це зображення.");
     image.src = reader.result;
@@ -1017,7 +1020,7 @@ $("#leaderboardList").addEventListener("click", (e) => {
   const profileAvatar = presence?.avatar || p.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
   const profileCustomAvatar = presence?.custom_avatar || p.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
   const savedProfileCardStyle = presence?.card_style || p.card_style;
-  const profileCardStyle = ["classic", "sage", "sky", "lilac"].includes(savedProfileCardStyle) ? savedProfileCardStyle : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
+  const profileCardStyle = CARD_STYLES.includes(savedProfileCardStyle) ? savedProfileCardStyle : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
   $("#profileDialog").dataset.profileStyle = profileCardStyle;
   $("#profileAvatar").innerHTML = avatarMarkup(profileAvatar, profileCustomAvatar);
   $("#profileName").textContent = p.display_name;
