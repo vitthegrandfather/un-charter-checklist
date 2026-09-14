@@ -254,7 +254,7 @@ async function trackPresence(force = false) {
   const vocabOpen = $("#vocabularyView")?.classList.contains("active");
   const article = cardsOpen && cards.length ? currentCard()?.n || null : null;
   const activity = vocabOpen ? "vocabulary" : cardsOpen ? "article" : "online";
-  const signature = `${currentUser.id}:${activity}:${article || ""}:${state.profileAvatar}:${state.customAvatar.length}`;
+  const signature = `${currentUser.id}:${activity}:${article || ""}:${state.profileAvatar}:${state.customAvatar.length}:${state.cardStyle}`;
   if (!force && signature === lastPresenceSignature) return;
   lastPresenceSignature = signature;
   await realtimeChannel.track({
@@ -263,6 +263,7 @@ async function trackPresence(force = false) {
     activity,
     avatar: state.profileAvatar,
     custom_avatar: state.profileAvatar === "custom" ? state.customAvatar : "",
+    card_style: state.cardStyle,
     updated_at: new Date().toISOString(),
   });
 }
@@ -522,7 +523,6 @@ function dueArticles() {
   );
 }
 function renderAll() {
-  document.documentElement.dataset.cardStyle = state.cardStyle;
   renderMetrics();
   renderArticles();
   $("#reviewBadge").textContent = dueArticles().length;
@@ -559,6 +559,7 @@ function renderAccount() {
   $("#accountEmail").textContent =
     currentProfile?.display_name || "Гостьовий режим";
   $("#accountAvatar").innerHTML = avatarMarkup(state.profileAvatar, state.customAvatar);
+  $(".account-identity").dataset.profileStyle = state.cardStyle;
   $$("#avatarPicker [data-avatar]").forEach((button) => {
     const selected = button.dataset.avatar === state.profileAvatar;
     button.classList.toggle("active", selected);
@@ -596,7 +597,8 @@ function renderAccount() {
                   : "";
               const avatar = presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
               const customAvatar = presence?.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
-              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}"><b class="leader-rank">${i + 1}</b><span class="leader-avatar" aria-hidden="true">${avatarMarkup(avatar, customAvatar)}</span><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
+              const cardStyle = ["classic", "sage", "sky", "lilac"].includes(presence?.card_style) ? presence.card_style : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
+              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}" data-profile-style="${cardStyle}"><b class="leader-rank">${i + 1}</b><span class="leader-avatar" aria-hidden="true">${avatarMarkup(avatar, customAvatar)}</span><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
             },
           )
           .join("")
@@ -997,7 +999,9 @@ $("#cardStylePicker").addEventListener("click", (e) => {
   const button = e.target.closest("[data-card-style]");
   if (!button) return;
   state.cardStyle = button.dataset.cardStyle;
+  lastPresenceSignature = "";
   save(false);
+  trackPresence(true);
 });
 $("#leaderboardList").addEventListener("click", (e) => {
   const b = e.target.closest("[data-profile]");
@@ -1008,6 +1012,8 @@ $("#leaderboardList").addEventListener("click", (e) => {
   const presence = onlineStudy.get(p.user_id);
   const profileAvatar = presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
   const profileCustomAvatar = presence?.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
+  const profileCardStyle = ["classic", "sage", "sky", "lilac"].includes(presence?.card_style) ? presence.card_style : (p.user_id === currentUser?.id ? state.cardStyle : "classic");
+  $("#profileDialog").dataset.profileStyle = profileCardStyle;
   $("#profileAvatar").innerHTML = avatarMarkup(profileAvatar, profileCustomAvatar);
   $("#profileName").textContent = p.display_name;
   $("#profileRank").textContent = `№ ${rank}`;
