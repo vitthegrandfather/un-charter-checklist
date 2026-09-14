@@ -76,6 +76,7 @@ let cards = [],
   vocabOrder = [],
   vocabIndex = 0,
   vocabFlipped = false,
+  vocabLearnMode = Boolean(savedUi.vocabLearnMode),
   uiRestored = false;
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
@@ -110,6 +111,7 @@ function persistUiState(view) {
     articleOrder: cards.length ? order : [],
     vocabId: vocabulary.length ? currentVocab()?.id : null,
     vocabOrder: vocabulary.length ? vocabOrder : [],
+    vocabLearnMode,
   };
   localStorage.setItem(UI_KEY, JSON.stringify(snapshot));
   savedUi = snapshot;
@@ -666,6 +668,7 @@ function restoreUiState() {
     vocabOrder = [...new Set(savedUi.vocabOrder)];
   const vocabPosition = vocabOrder.indexOf(savedUi.vocabId);
   if (vocabPosition >= 0) vocabIndex = vocabPosition;
+  vocabLearnMode = Boolean(savedUi.vocabLearnMode);
   const view = validViews.has(savedUi.view) ? savedUi.view : "tracker";
   uiRestored = true;
   switchView(view, true);
@@ -686,6 +689,7 @@ function renderVocabulary() {
     element.classList.toggle("term-long", text.length > 48);
   });
   $("#vocabCard").classList.toggle("flipped", vocabFlipped);
+  $("#vocabLearnMode").checked = vocabLearnMode;
   $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}`;
   $("#vocabPrev").disabled = vocabIndex === 0;
   $("#vocabNext").disabled = vocabIndex === vocabOrder.length - 1;
@@ -710,16 +714,30 @@ function renderVocabularyList() {
     .join("");
 }
 function moveVocabulary(step) {
+  let learningChanged = false;
+  if (vocabLearnMode) {
+    const id = currentVocab().id;
+    const learned = state.vocabLearned.includes(id);
+    if (step > 0 && !learned) {
+      state.vocabLearned.push(id);
+      learningChanged = true;
+    }
+    if (step < 0 && learned) {
+      state.vocabLearned = state.vocabLearned.filter((wordId) => wordId !== id);
+      learningChanged = true;
+    }
+  }
   const next = Math.max(0, Math.min(vocabIndex + step, vocabOrder.length - 1));
-  if (next === vocabIndex) return;
+  if (next === vocabIndex && !learningChanged) return;
   vocabIndex = next;
   vocabFlipped = false;
-  renderVocabulary();
+  if (learningChanged) save();
+  else renderVocabulary();
   animateStudyCard($("#vocabCard"), step);
 }
 function flipVocabulary() {
   vocabFlipped = !vocabFlipped;
-  if (vocabFlipped && !state.vocabLearned.includes(currentVocab().id)) {
+  if (!vocabLearnMode && vocabFlipped && !state.vocabLearned.includes(currentVocab().id)) {
     state.vocabLearned.push(currentVocab().id);
     save();
   } else renderVocabulary();
@@ -899,6 +917,10 @@ $("#vocabCard").addEventListener("click", () => {
 });
 $("#vocabPrev").addEventListener("click", () => moveVocabulary(-1));
 $("#vocabNext").addEventListener("click", () => moveVocabulary(1));
+$("#vocabLearnMode").addEventListener("change", (event) => {
+  vocabLearnMode = event.target.checked;
+  persistUiState("vocabulary");
+});
 $("#todayList").addEventListener("click", (e) => {
   const button = e.target.closest("[data-today-article]");
   if (button) openArticle(+button.dataset.todayArticle);
