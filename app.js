@@ -105,9 +105,14 @@ async function saveCloud() {
 }
 async function saveGroupProfile(name = currentProfile?.display_name) {
   if (!currentUser || !name) return;
+  const cleanName = name.trim();
+  const { error: metadataError } = await client.auth.updateUser({
+    data: { display_name: cleanName },
+  });
+  if (metadataError) return metadataError;
   const row = {
     user_id: currentUser.id,
-    display_name: name.trim(),
+    display_name: cleanName,
     learned_count: state.learned.length,
     hard_count: Object.values(state.difficulty).filter((x) => x === "hard")
       .length,
@@ -668,7 +673,7 @@ function openAuth() {
   $("#authMessage").textContent = "";
   if (!$("#authDialog").open) $("#authDialog").showModal();
 }
-$("#authBtn").addEventListener("click", openAuth);
+$("#authBtn").addEventListener("click", () => switchView("account"));
 $("#themeBtn").addEventListener("click", () =>
   applyTheme(
     document.documentElement.dataset.theme === "dark" ? "light" : "dark",

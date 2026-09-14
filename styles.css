@@ -671,6 +671,9 @@ dialog textarea {
 .account-view {
   margin-top: 34px;
 }
+.ranking-view {
+  margin-top: 34px;
+}
 .account-heading h2 {
   font:
     900 clamp(42px, 7vw, 72px) / 0.9 Arial,
@@ -811,7 +814,7 @@ dialog textarea {
     transform: translateX(-50%);
     width: min(460px, calc(100% - 20px));
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     background: var(--card);
     border: 2px solid var(--ink);
     box-shadow: 4px 4px 0 var(--ink);
