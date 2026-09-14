@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=43" />
+    <link rel="stylesheet" href="styles.css?v=44" />
   </head>
   <body class="tracker-open">
     <a class="skip" href="#content">До вмісту</a>
@@ -171,17 +171,9 @@
             <button id="vocabNext" class="vocab-nav" aria-label="Наступне слово">→</button>
           </div>
           <div class="vocab-card-controls">
-            <label class="vocab-learn-toggle">
-              <input type="checkbox" id="vocabLearnMode" role="switch" />
-              <span class="vocab-switch" aria-hidden="true"><i></i></span>
-              <span class="vocab-learn-label"><strong>Режим вивчення</strong><small>← ще вчу · вивчено →</small></span>
-            </label>
             <div class="vocab-tools" aria-label="Параметри карток">
-              <button id="vocabShuffle" aria-label="Перемішати" title="Перемішати"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3.2c2.8 0 4.1 2.2 5.5 5s2.7 5 5.5 5H20m-3-3 3 3-3 3M4 17h3.2c1.4 0 2.5-.6 3.4-1.7M14 8.7c1-1.1 2.2-1.7 4.2-1.7H20m-3-3 3 3-3 3"/></svg></button>
-              <button id="vocabSwap" aria-label="Поміняти сторони" title="Поміняти сторони"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16m0-16L4 7m3-3 3 3M17 20V4m0 16 3-3m-3 3-3-3"/></svg></button>
-              <button id="vocabRestart" aria-label="Почати спочатку" title="Почати спочатку"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 2.3 7.7M4 10V5m0 5h5"/></svg></button>
-              <button id="vocabReset" aria-label="Скинути прогрес" title="Скинути прогрес"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg></button>
               <button id="vocabUndo" class="vocab-undo" aria-label="Скасувати останню відповідь" title="Скасувати останню відповідь" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 4 12l5 5"/><path d="M5 12h8a6 6 0 0 1 6 6v1"/></svg></button>
+              <button id="vocabSettingsOpen" class="vocab-settings-open" aria-label="Налаштування карток" title="Налаштування"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg></button>
             </div>
           </div>
         </div>
@@ -409,6 +401,26 @@
         </div>
       </form>
     </dialog>
+    <dialog id="vocabSettingsDialog" class="vocab-settings-dialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div><span class="section-label">Слова</span><h2>Налаштування</h2></div>
+          <button value="cancel" aria-label="Закрити">×</button>
+        </div>
+        <label class="vocab-settings-row vocab-learn-toggle">
+          <span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span>
+          <span class="settings-copy"><strong>Режим вивчення</strong><small>Ліворуч — ще вчу, праворуч — вивчено</small></span>
+          <input type="checkbox" id="vocabLearnMode" role="switch" />
+          <span class="vocab-switch" aria-hidden="true"><i></i></span>
+        </label>
+        <div class="vocab-settings-actions">
+          <button type="button" id="vocabShuffle"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M4 7h3.2c2.8 0 4.1 2.2 5.5 5s2.7 5 5.5 5H20m-3-3 3 3-3 3M4 17h3.2c1.4 0 2.5-.6 3.4-1.7M14 8.7c1-1.1 2.2-1.7 4.2-1.7H20m-3-3 3 3-3 3"/></svg></span><span><strong id="vocabShuffleLabel">Перемішати</strong><small id="vocabShuffleHint">Змінити порядок усіх слів</small></span></button>
+          <button type="button" id="vocabSwap"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M7 4v16m0-16L4 7m3-3 3 3M17 20V4m0 16 3-3m-3 3-3-3"/></svg></span><span><strong>Поміняти сторони</strong><small>Починати з німецької або української</small></span></button>
+          <button type="button" id="vocabRestart"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 2.3 7.7M4 10V5m0 5h5"/></svg></span><span><strong>Почати спочатку</strong><small>Повернутися до першої картки</small></span></button>
+          <button type="button" id="vocabReset" class="danger-setting"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg></span><span><strong>Скинути прогрес</strong><small>Прибрати всі позначки «вивчено»</small></span></button>
+        </div>
+      </form>
+    </dialog>
     <dialog id="avatarDialog" class="avatar-dialog">
       <form method="dialog">
         <div class="dialog-head">
@@ -416,26 +428,26 @@
           <button aria-label="Закрити">×</button>
         </div>
         <div class="avatar-picker" id="avatarPicker" aria-label="Виберіть аватарку">
-          <button type="button" data-avatar="avatar-01" aria-label="Крокодил-опера"><span class="avatar-art avatar-01"></span></button>
-          <button type="button" data-avatar="avatar-02" aria-label="Професор-мока"><span class="avatar-art avatar-02"></span></button>
           <button type="button" data-avatar="avatar-03" aria-label="Банан-детектив"><span class="avatar-art avatar-03"></span></button>
           <button type="button" data-avatar="avatar-04" aria-label="Капібара-гондольєр"><span class="avatar-art avatar-04"></span></button>
-          <button type="button" data-avatar="avatar-05" aria-label="Равіолі-лицар"><span class="avatar-art avatar-05"></span></button>
           <button type="button" data-avatar="avatar-06" aria-label="Бабуся-восьминіг"><span class="avatar-art avatar-06"></span></button>
-          <button type="button" data-avatar="avatar-07" aria-label="Еспресо-атлет"><span class="avatar-art avatar-07"></span></button>
           <button type="button" data-avatar="avatar-08" aria-label="Єнот-кухар"><span class="avatar-art avatar-08"></span></button>
           <button type="button" data-avatar="avatar-09" aria-label="Фламінго-бухгалтер"><span class="avatar-art avatar-09"></span></button>
-          <button type="button" data-avatar="avatar-10" aria-label="Акула-аристократ"><span class="avatar-art avatar-10"></span></button>
           <button type="button" data-avatar="avatar-11" aria-label="Альпака-балерина"><span class="avatar-art avatar-11"></span></button>
-          <button type="button" data-avatar="avatar-12" aria-label="Лимон-мафіозі"><span class="avatar-art avatar-12"></span></button>
           <button type="button" data-avatar="avatar-13" aria-label="Жаба-космонавт"><span class="avatar-art avatar-13"></span></button>
-          <button type="button" data-avatar="avatar-14" aria-label="Такса-легіонер"><span class="avatar-art avatar-14"></span></button>
           <button type="button" data-avatar="avatar-15" aria-label="Гусак-фокусник"><span class="avatar-art avatar-15"></span></button>
-          <button type="button" data-avatar="avatar-16" aria-label="Горила-скрипаль"><span class="avatar-art avatar-16"></span></button>
-          <button type="button" data-avatar="avatar-17" aria-label="Креветка-суддя"><span class="avatar-art avatar-17"></span></button>
           <button type="button" data-avatar="avatar-18" aria-label="Кішка-імператриця"><span class="avatar-art avatar-18"></span></button>
           <button type="button" data-avatar="avatar-19" aria-label="Корова-поет"><span class="avatar-art avatar-19"></span></button>
-          <button type="button" data-avatar="avatar-20" aria-label="Миша-пілот"><span class="avatar-art avatar-20"></span></button>
+          <button type="button" data-avatar="avatar-21" aria-label="Лисиця-механік"><span class="avatar-art avatar-21"></span></button>
+          <button type="button" data-avatar="avatar-22" aria-label="Сова — місячна принцеса"><span class="avatar-art avatar-22"></span></button>
+          <button type="button" data-avatar="avatar-23" aria-label="Їжачиха-діджей"><span class="avatar-art avatar-23"></span></button>
+          <button type="button" data-avatar="avatar-24" aria-label="Грибна науковиця"><span class="avatar-art avatar-24"></span></button>
+          <button type="button" data-avatar="avatar-25" aria-label="Голубка-адвокатка"><span class="avatar-art avatar-25"></span></button>
+          <button type="button" data-avatar="avatar-26" aria-label="Аксолотль-кухарка"><span class="avatar-art avatar-26"></span></button>
+          <button type="button" data-avatar="avatar-27" aria-label="Кішка-ворожка"><span class="avatar-art avatar-27"></span></button>
+          <button type="button" data-avatar="avatar-28" aria-label="Білка-боксерка"><span class="avatar-art avatar-28"></span></button>
+          <button type="button" data-avatar="avatar-29" aria-label="Медуза-диригентка"><span class="avatar-art avatar-29"></span></button>
+          <button type="button" data-avatar="avatar-30" aria-label="Єнотиха-хакерка"><span class="avatar-art avatar-30"></span></button>
           <label class="avatar-upload" for="avatarUpload" aria-label="Додати власну аватарку">
             <span aria-hidden="true">＋</span><b>Своє фото</b>
           </label>
@@ -448,6 +460,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=47"></script>
+    <script src="app.js?v=48"></script>
   </body>
 </html>

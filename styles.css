@@ -2220,15 +2220,24 @@ button {
 .avatar-06, .avatar-07, .avatar-08, .avatar-09, .avatar-10 { background-image: url("assets/avatars-01.jpg"); }
 .avatar-11, .avatar-12, .avatar-13, .avatar-14, .avatar-15,
 .avatar-16, .avatar-17, .avatar-18, .avatar-19, .avatar-20 { background-image: url("assets/avatars-02.jpg"); }
+.avatar-21, .avatar-22, .avatar-23, .avatar-24, .avatar-25,
+.avatar-26, .avatar-27, .avatar-28, .avatar-29, .avatar-30 { background-image: url("assets/avatars-03.jpg"); }
 .avatar-01, .avatar-06, .avatar-11, .avatar-16 { background-position-x: 0%; }
 .avatar-02, .avatar-07, .avatar-12, .avatar-17 { background-position-x: 25%; }
 .avatar-03, .avatar-08, .avatar-13, .avatar-18 { background-position-x: 50%; }
 .avatar-04, .avatar-09, .avatar-14, .avatar-19 { background-position-x: 75%; }
 .avatar-05, .avatar-10, .avatar-15, .avatar-20 { background-position-x: 100%; }
+.avatar-21, .avatar-26 { background-position-x: 0%; }
+.avatar-22, .avatar-27 { background-position-x: 25%; }
+.avatar-23, .avatar-28 { background-position-x: 50%; }
+.avatar-24, .avatar-29 { background-position-x: 75%; }
+.avatar-25, .avatar-30 { background-position-x: 100%; }
 .avatar-01, .avatar-02, .avatar-03, .avatar-04, .avatar-05,
 .avatar-11, .avatar-12, .avatar-13, .avatar-14, .avatar-15 { background-position-y: 0%; }
 .avatar-06, .avatar-07, .avatar-08, .avatar-09, .avatar-10,
 .avatar-16, .avatar-17, .avatar-18, .avatar-19, .avatar-20 { background-position-y: 100%; }
+.avatar-21, .avatar-22, .avatar-23, .avatar-24, .avatar-25 { background-position-y: 0%; }
+.avatar-26, .avatar-27, .avatar-28, .avatar-29, .avatar-30 { background-position-y: 100%; }
 .avatar-upload {
   grid-column: span 2;
   min-height: 54px;
@@ -2637,7 +2646,7 @@ body.cards-open .card-copy.is-compact,
   margin: 16px 80px 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
 }
 .vocab-tools {
@@ -2691,6 +2700,112 @@ body.cards-open .card-copy.is-compact,
 [data-theme="dark"] .vocab-tools button.state-on {
   border-color: #78a18b;
   background: #34463c;
+}
+
+.vocab-settings-dialog {
+  width: min(520px, calc(100% - 28px));
+  padding: 0;
+  border-radius: 18px;
+}
+.vocab-settings-dialog form { padding: 22px; }
+.vocab-settings-dialog .dialog-head { margin-bottom: 18px; }
+.vocab-settings-dialog .dialog-head h2 { margin: 2px 0 0; }
+.vocab-settings-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ink) 4%, var(--card));
+}
+.vocab-settings-row:has(input:checked) {
+  border-color: color-mix(in srgb, var(--green) 66%, var(--line));
+  background: color-mix(in srgb, var(--green) 10%, var(--card));
+}
+.settings-copy,
+.vocab-settings-actions button > span:last-child {
+  display: grid;
+  gap: 3px;
+  text-align: left;
+}
+.settings-copy strong,
+.vocab-settings-actions strong { font: 700 14px/1.2 Arial, sans-serif; }
+.settings-copy small,
+.vocab-settings-actions small { color: var(--muted); font: 400 12px/1.35 Arial, sans-serif; }
+.settings-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ink) 8%, var(--card));
+}
+.settings-icon svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.vocab-settings-actions { display: grid; gap: 8px; }
+.vocab-settings-actions button {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 66px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: none;
+}
+.vocab-settings-actions button:hover {
+  background: color-mix(in srgb, var(--ink) 6%, var(--card));
+  transform: translateY(-1px);
+}
+.vocab-settings-actions button.state-on {
+  border-color: color-mix(in srgb, var(--green) 66%, var(--line));
+  background: color-mix(in srgb, var(--green) 10%, var(--card));
+}
+.vocab-settings-actions .danger-setting:hover { color: var(--red); }
+
+/* Status rail stays visible even while the article card is hovered. */
+.article { position: relative; overflow: hidden; }
+.article:is(.hard, .review)::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 1;
+  width: 7px;
+  background: var(--yellow);
+  pointer-events: none;
+}
+.article.hard::before { background: var(--red); }
+.article.review.hard::before {
+  width: 14px;
+  background: linear-gradient(90deg, var(--red) 0 50%, var(--yellow) 50% 100%);
+}
+[data-theme="dark"] .article:is(.hard, .review)::before { background: #8f8358; }
+[data-theme="dark"] .article.hard::before { background: #8f5d58; }
+[data-theme="dark"] .article.review.hard::before {
+  background: linear-gradient(90deg, #8f5d58 0 50%, #8f8358 50% 100%);
+}
+@media (max-width: 520px) {
+  .vocab-settings-dialog {
+    width: calc(100% - 16px);
+    margin-bottom: max(8px, env(safe-area-inset-bottom));
+    border-radius: 20px;
+  }
+  .vocab-settings-dialog form { padding: 18px 14px 14px; }
 }
 
 /* Calm navy night palette */

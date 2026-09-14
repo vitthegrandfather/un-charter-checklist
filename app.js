@@ -12,7 +12,7 @@ const OLD_KEY = "un-charta-progress-v1",
   REVIEW_DAYS = 4;
 const SUPABASE_URL = "https://xwdxfbgazlplyiglzecm.supabase.co",
   SUPABASE_KEY = "sb_publishable_yNV81pVLwznAKRN2fH3PBQ_ptbNVmFh";
-const AVATARS = Array.from({ length: 20 }, (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`);
+const AVATARS = Array.from({ length: 30 }, (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`);
 const CARD_STYLES = ["classic", "sage", "sky", "lilac", "mint", "ocean", "sunset", "cocoa", "lemon", "lavender", "noir", "candy"];
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
@@ -829,6 +829,10 @@ function renderVocabulary() {
     "aria-label",
     shuffled ? "Вимкнути перемішування" : "Перемішати",
   );
+  $("#vocabShuffleLabel").textContent = shuffled ? "Перемішування увімкнено" : "Перемішати";
+  $("#vocabShuffleHint").textContent = shuffled
+    ? "Натисніть, щоб повернути звичайний порядок"
+    : "Змінити порядок усіх слів";
   $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}`;
   $("#vocabPrev").disabled = !vocabLearnMode && vocabIndex === 0;
   $("#vocabPrev").setAttribute(
@@ -1320,6 +1324,7 @@ $("#vocabNext").addEventListener("click", () =>
   vocabLearnMode ? animateVocabularyDecision(1, true) : moveVocabulary(1),
 );
 $("#vocabUndo").addEventListener("click", undoVocabularyDecision);
+$("#vocabSettingsOpen").addEventListener("click", () => $("#vocabSettingsDialog").showModal());
 $("#vocabLearnMode").addEventListener("change", (event) => {
   vocabLearnMode = event.target.checked;
   vocabUndoStack = [];
