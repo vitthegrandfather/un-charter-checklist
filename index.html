@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=20" />
+    <link rel="stylesheet" href="styles.css?v=21" />
   </head>
   <body>
     <a class="skip" href="#content">До вмісту</a>
@@ -176,7 +176,8 @@
             <button id="vocabNext" class="vocab-nav" aria-label="Наступне слово">→</button>
           </div>
           <label class="vocab-learn-toggle">
-            <input type="checkbox" id="vocabLearnMode" />
+            <input type="checkbox" id="vocabLearnMode" role="switch" />
+            <span class="vocab-switch" aria-hidden="true"><i></i></span>
             <span>Режим вивчення</span>
           </label>
         </div>

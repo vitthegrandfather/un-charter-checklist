@@ -1959,11 +1959,44 @@ button {
   user-select: none;
 }
 .vocab-learn-toggle input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: var(--ink);
-  cursor: pointer;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.vocab-switch {
+  width: 42px;
+  height: 24px;
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--ink) 34%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 8%, var(--card));
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.vocab-switch i {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--muted);
+  transform: translateX(0);
+  transition: transform 180ms var(--ease-out), background 160ms ease;
+}
+.vocab-learn-toggle input:checked + .vocab-switch {
+  border-color: var(--green);
+  background: color-mix(in srgb, var(--green) 28%, var(--card));
+}
+.vocab-learn-toggle input:checked + .vocab-switch i {
+  background: var(--green);
+  transform: translateX(18px);
+}
+.vocab-learn-toggle input:focus-visible + .vocab-switch {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
 }
 @media (max-width: 720px) {
   .vocab-learn-toggle { margin: 14px 52px 0; }
