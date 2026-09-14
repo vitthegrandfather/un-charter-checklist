@@ -1949,7 +1949,6 @@ button {
 
 .vocab-learn-toggle {
   width: fit-content;
-  margin: 16px 80px 0;
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -1999,25 +1998,41 @@ button {
   outline-offset: 3px;
 }
 @media (max-width: 720px) {
-  .vocab-learn-toggle { margin: 14px 52px 0; }
+  .vocab-learn-toggle { font-size: 13px; }
 }
 
-.vocab-tools {
-  margin: 14px 80px 0;
+.vocab-card-controls {
+  margin: 16px 80px 0;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.vocab-tools {
+  display: flex;
   gap: 8px;
 }
 .vocab-tools button {
+  width: 42px;
+  height: 42px;
   min-height: 42px;
-  padding: 10px 15px;
+  padding: 9px;
   border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
   border-radius: 10px;
   background: color-mix(in srgb, var(--card) 88%, var(--ink) 12%);
   color: var(--ink);
   box-shadow: 0 2px 0 color-mix(in srgb, var(--ink) 20%, transparent);
-  font: 700 12px/1 Arial, sans-serif;
   transition: transform 120ms var(--ease-out), background 160ms ease, box-shadow 120ms var(--ease-out);
+}
+.vocab-tools svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .vocab-tools button:hover {
   background: color-mix(in srgb, var(--card) 78%, var(--ink) 22%);
@@ -2035,10 +2050,14 @@ button {
 [data-theme="dark"] .vocab-tools button:hover { background: #394039; }
 #vocabReset:hover { color: var(--red); }
 @media (max-width: 720px) {
-  .vocab-tools {
-    margin: 12px 52px 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .vocab-tools button { padding-inline: 8px; }
+  .vocab-card-controls { margin: 14px 52px 0; }
+  .vocab-tools { gap: 6px; }
+  .vocab-tools button { width: 38px; height: 38px; min-height: 38px; padding: 8px; }
+}
+@media (max-width: 420px) {
+  .vocab-card-controls { margin-inline: 0; }
+  .vocab-learn-toggle { gap: 7px; }
+  .vocab-switch { width: 38px; height: 22px; }
+  .vocab-switch i { width: 14px; height: 14px; }
+  .vocab-learn-toggle input:checked + .vocab-switch i { transform: translateX(16px); }
 }
