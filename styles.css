@@ -580,6 +580,8 @@ textarea:focus-visible {
 .card-copy {
   white-space: pre-wrap;
   overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
   margin: auto 0;
   padding: 25px 0;
   font:
@@ -1428,7 +1430,10 @@ dialog textarea {
 .flash-back {
   transform: rotateX(180deg);
   background: #e7ecef;
+  pointer-events: none;
 }
+.flashcard-scene.flipped .flash-front { pointer-events: none; }
+.flashcard-scene.flipped .flash-back { pointer-events: auto; }
 .flash-face .card-copy {
   display: block;
 }
