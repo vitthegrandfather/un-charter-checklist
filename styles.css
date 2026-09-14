@@ -579,9 +579,7 @@ textarea:focus-visible {
 }
 .card-copy {
   white-space: pre-wrap;
-  overflow: auto;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
+  overflow: hidden;
   margin: auto 0;
   padding: 25px 0;
   font:
@@ -2511,6 +2509,19 @@ button {
 }
 @media (prefers-reduced-motion: reduce) {
   .vocab-card-inner { transition: opacity 120ms linear; }
+}
+
+body.cards-open .card-copy.is-compact,
+#reviewCard .card-copy.is-compact {
+  font-size: clamp(16px, 1.8vw, 24px);
+  line-height: 1.4;
+}
+@media (max-width: 520px) {
+  body.cards-open .card-copy.is-compact,
+  #reviewCard .card-copy.is-compact {
+    font-size: clamp(15px, 4.1vw, 18px);
+    line-height: 1.35;
+  }
 }
 
 .vocab-learn-toggle {

@@ -67,6 +67,7 @@ let savedUi = (() => {
   }
 })();
 let cards = [],
+  studyCards = [],
   order = [],
   cardIndex = 0,
   flipped = false,
@@ -75,6 +76,7 @@ let cards = [],
   reviewQueue = [],
   reviewIndex = 0,
   reviewFlipped = false,
+  reviewResults = new Map(),
   currentUser = null,
   cloudTimer = null,
   authMode = "signin",
@@ -124,8 +126,9 @@ function persistUiState(view) {
     view || $(".view.active")?.id?.replace(/View$/, "") || "tracker";
   const snapshot = {
     view: activeView,
-    article: cards.length ? currentCard()?.n : null,
-    articleOrder: cards.length ? order : [],
+    article: studyCards.length ? currentCard()?.n : null,
+    articlePart: studyCards.length ? currentCard()?.part : null,
+    articleOrder: studyCards.length ? order : [],
     vocabId: vocabulary.length ? currentVocab()?.id : null,
     vocabOrder: vocabulary.length ? vocabOrder : [],
     vocabLearnMode,
@@ -627,21 +630,25 @@ function switchView(name, remember = true) {
   trackPresence();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
-function mergeCards(raw) {
-  const grouped = new Map();
-  raw
+function parseCardParts(raw) {
+  return raw
     .split(/\r?\n§§§\r?\n/)
     .filter(Boolean)
-    .forEach((part) => {
+    .map((part) => {
       const split = part.indexOf("\t");
-      if (split < 0) return;
-      const uk = part.slice(0, split).trim(),
-        de = part.slice(split + 1).trim(),
-        m = uk.match(/Стаття\s+(\d+)/i);
-      if (!m) return;
-      const n = +m[1],
-        u = uk.replace(/^Стаття\s+\d+\.\s*/i, ""),
-        g = de.replace(/^Artikel\s+\d+\.\s*/i, "");
+      if (split < 0) return null;
+      const uk = part.slice(0, split).trim();
+      const de = part.slice(split + 1).trim();
+      const match = uk.match(/Стаття\s+(\d+)/i);
+      return match ? { n: +match[1], uk, de } : null;
+    })
+    .filter(Boolean);
+}
+function mergeCards(raw) {
+  const grouped = new Map();
+  parseCardParts(raw).forEach(({ n, uk, de }) => {
+      const u = uk.replace(/^Стаття\s+\d+\.\s*/i, "");
+      const g = de.replace(/^Artikel\s+\d+\.\s*/i, "");
       if (!grouped.has(n))
         grouped.set(n, { n, uk: `Стаття ${n}.`, de: `Artikel ${n}.` });
       grouped.get(n).uk += `\n${u}`;
@@ -649,15 +656,67 @@ function mergeCards(raw) {
     });
   return ARTICLES.map((n) => grouped.get(n)).filter(Boolean);
 }
+function splitBalanced(text, count) {
+  if (count <= 1) return [text.trim()];
+  const tokens = text.trim().match(/\S+\s*/g) || [];
+  const pages = [];
+  let offset = 0;
+  for (let page = 0; page < count; page++) {
+    const remainingPages = count - page;
+    const remainingLength = tokens.slice(offset).reduce((sum, token) => sum + token.length, 0);
+    const target = Math.ceil(remainingLength / remainingPages);
+    let length = 0;
+    const start = offset;
+    while (offset < tokens.length && (length < target || offset === start)) {
+      length += tokens[offset].length;
+      offset++;
+    }
+    if (page < count - 1) {
+      const minimum = target * 0.62;
+      let candidateLength = length;
+      let punctuationBreak = -1;
+      for (let i = offset; i > start; i--) {
+        if (/[.;!?]\s*$/.test(tokens[i - 1]) && !/^\d+\.\s*$/.test(tokens[i - 1]) && candidateLength >= minimum) {
+          punctuationBreak = i;
+          break;
+        }
+        candidateLength -= tokens[i - 1].length;
+      }
+      if (punctuationBreak > start) offset = punctuationBreak;
+    }
+    pages.push(tokens.slice(start, offset).join("").trim());
+  }
+  return pages;
+}
+function buildStudyCards(raw) {
+  const limit = window.innerWidth <= 520 ? 320 : window.innerWidth <= 900 ? 430 : 600;
+  const expanded = [];
+  parseCardParts(raw).forEach(({ n, uk, de }) => {
+    const ukBody = uk.replace(/^Стаття\s+\d+\.\s*/i, "");
+    const deBody = de.replace(/^Artikel\s+\d+\.\s*/i, "");
+    const pages = Math.max(1, Math.ceil(Math.max(ukBody.length, deBody.length) / limit));
+    const ukPages = splitBalanced(ukBody, pages);
+    const dePages = splitBalanced(deBody, pages);
+    for (let i = 0; i < pages; i++)
+      expanded.push({ n, uk: `Стаття ${n}.\n${ukPages[i]}`, de: `Artikel ${n}.\n${dePages[i]}` });
+  });
+  const totals = expanded.reduce((map, card) => map.set(card.n, (map.get(card.n) || 0) + 1), new Map());
+  const seen = new Map();
+  return expanded.map((card) => ({
+    ...card,
+    part: seen.set(card.n, (seen.get(card.n) || 0) + 1).get(card.n),
+    parts: totals.get(card.n),
+  }));
+}
 async function loadCards() {
   try {
-    cards = mergeCards(
-      await fetch("cards.txt?v=9").then((r) => {
+    const raw = await fetch("cards.txt?v=9").then((r) => {
         if (!r.ok) throw Error();
         return r.text();
-      }),
-    );
-    order = cards.map((_, i) => i);
+      });
+    cards = mergeCards(raw);
+    studyCards = buildStudyCards(raw);
+    order = studyCards.map((_, i) => i);
     renderArticles();
     renderCard();
   } catch (e) {
@@ -697,14 +756,15 @@ function restoreUiState() {
   ]);
   if (
     Array.isArray(savedUi.articleOrder) &&
-    savedUi.articleOrder.length &&
+    savedUi.articleOrder.length === studyCards.length &&
     savedUi.articleOrder.every(
-      (index) => Number.isInteger(index) && index >= 0 && index < cards.length,
+      (index) => Number.isInteger(index) && index >= 0 && index < studyCards.length,
     )
   )
     order = [...savedUi.articleOrder];
   const articlePosition = order.findIndex(
-    (index) => cards[index]?.n === savedUi.article,
+    (index) => studyCards[index]?.n === savedUi.article &&
+      (!savedUi.articlePart || studyCards[index]?.part === savedUi.articlePart),
   );
   if (articlePosition >= 0) cardIndex = articlePosition;
   if (
@@ -814,25 +874,27 @@ function flipVocabulary(direction = 1) {
   } else renderVocabulary();
 }
 function currentCard() {
-  return cards[order[cardIndex]];
+  return studyCards[order[cardIndex]];
 }
 function renderCard() {
-  if (!cards.length) return;
+  if (!studyCards.length) return;
   cardIndex = Math.max(0, Math.min(cardIndex, order.length - 1));
   const c = currentCard();
   $("#cardUk").textContent = c.uk;
   $("#cardDe").textContent = c.de;
+  $("#cardUk").classList.toggle("is-compact", c.uk.length > 300);
+  $("#cardDe").classList.toggle("is-compact", c.de.length > 300);
   $("#flashcard").classList.toggle("flipped", flipped);
   $("#flashcard .flashcard-inner").style.transform = `rotateX(${cardRotation}deg)`;
-  $("#cardCounter").textContent = `${cardIndex + 1} / ${order.length}${cardIndex === 0 ? " · початок" : cardIndex === order.length - 1 ? " · кінець" : ""}`;
+  $("#cardCounter").textContent = `Стаття ${c.n}${c.parts > 1 ? ` · ${c.part}/${c.parts}` : ""} · ${cardIndex + 1}/${order.length}${cardIndex === 0 ? " · початок" : cardIndex === order.length - 1 ? " · кінець" : ""}`;
   $("#prevCard").classList.toggle("state-on", !flipped);
   $("#nextCard").classList.toggle("state-on", flipped);
   $("#prevArticle").disabled = cardIndex === 0;
   $("#nextArticle").disabled = cardIndex === order.length - 1;
   $("#prevArticle").title =
-    cardIndex === 0 ? "Це перша стаття" : "Попередня стаття";
+    cardIndex === 0 ? "Це перша картка" : "Попередня картка";
   $("#nextArticle").title =
-    cardIndex === order.length - 1 ? "Це остання стаття" : "Наступна стаття";
+    cardIndex === order.length - 1 ? "Це остання картка" : "Наступна картка";
   $("#cardLearned").textContent = has("learned", c.n)
     ? "✓ Вивчено · скасувати"
     : "✓ Позначити вивчено";
@@ -874,10 +936,10 @@ function moveCard(step) {
   animateCard(step);
 }
 function openArticle(n) {
-  order = cards.map((_, i) => i);
+  order = studyCards.map((_, i) => i);
   cardIndex = Math.max(
     0,
-    cards.findIndex((c) => c.n === n),
+    studyCards.findIndex((c) => c.n === n),
   );
   flipped = false;
   cardRotation = 0;
@@ -885,34 +947,42 @@ function openArticle(n) {
   renderCard();
 }
 function startReview(all) {
-  reviewQueue = (
+  const articleIds = (
     all ? ARTICLES.filter((n) => has("learned", n)) : dueArticles()
-  ).filter((n) => cards.some((c) => c.n === n));
+  ).filter((n) => studyCards.some((c) => c.n === n));
+  reviewQueue = studyCards.filter((card) => articleIds.includes(card.n));
   reviewIndex = 0;
   reviewFlipped = false;
+  reviewResults = new Map();
   $("#reviewEmpty").hidden = reviewQueue.length > 0;
   $("#reviewSession").hidden = !reviewQueue.length;
   if (reviewQueue.length) renderReviewCard();
 }
 function renderReviewCard() {
-  const n = reviewQueue[reviewIndex],
-    c = cards.find((x) => x.n === n);
+  const c = reviewQueue[reviewIndex],
+    n = c.n;
   $("#reviewUk").textContent = c.uk;
   $("#reviewDe").textContent = c.de;
+  $("#reviewUk").classList.toggle("is-compact", c.uk.length > 300);
+  $("#reviewDe").classList.toggle("is-compact", c.de.length > 300);
   $("#reviewCard").classList.toggle("flipped", reviewFlipped);
   $("#reviewCounter").textContent =
-    `${reviewIndex + 1} / ${reviewQueue.length} · Стаття ${n}`;
+    `${reviewIndex + 1} / ${reviewQueue.length} · Стаття ${n}${c.parts > 1 ? ` · частина ${c.part}/${c.parts}` : ""}`;
 }
 function finishReview(known) {
-  const n = reviewQueue[reviewIndex];
-  if (known) {
-    toggle("review", n, false);
-    const level = (state.reviewLevel[n] || 0) + 1;
-    state.reviewLevel[n] = level;
-    state.nextReview[n] = Date.now() + [1, 3, 7, 14][Math.min(level, 3)] * DAY;
-  } else {
-    toggle("review", n, true);
-    state.nextReview[n] = Date.now();
+  const n = reviewQueue[reviewIndex].n;
+  reviewResults.set(n, (reviewResults.get(n) ?? true) && known);
+  const articleFinished = reviewIndex === reviewQueue.length - 1 || reviewQueue[reviewIndex + 1].n !== n;
+  if (articleFinished) {
+    if (reviewResults.get(n)) {
+      toggle("review", n, false);
+      const level = (state.reviewLevel[n] || 0) + 1;
+      state.reviewLevel[n] = level;
+      state.nextReview[n] = Date.now() + [1, 3, 7, 14][Math.min(level, 3)] * DAY;
+    } else {
+      toggle("review", n, true);
+      state.nextReview[n] = Date.now();
+    }
   }
   save();
   reviewIndex++;
@@ -1151,7 +1221,8 @@ $("#nextCard").addEventListener("click", () => {
 $("#prevArticle").addEventListener("click", () => moveCard(-1));
 $("#nextArticle").addEventListener("click", () => moveCard(1));
 $("#shuffleBtn").addEventListener("click", () => {
-  order.sort(() => Math.random() - 0.5);
+  const articles = [...new Set(studyCards.map((card) => card.n))].sort(() => Math.random() - 0.5);
+  order = articles.flatMap((n) => studyCards.map((card, index) => card.n === n ? index : -1).filter((index) => index >= 0));
   cardIndex = 0;
   flipped = false;
   cardRotation = 0;
@@ -1166,10 +1237,10 @@ $$(".difficulty-actions button").forEach((b) =>
 );
 $("#startToday").addEventListener("click", () => {
   const todo = todayPlan();
-  order = todo
-    .map((n) => cards.findIndex((c) => c.n === n))
-    .filter((i) => i >= 0);
-  if (!order.length) order = cards.map((_, i) => i);
+  order = todo.flatMap((n) =>
+    studyCards.map((card, index) => card.n === n ? index : -1).filter((index) => index >= 0),
+  );
+  if (!order.length) order = studyCards.map((_, i) => i);
   cardIndex = 0;
   flipped = false;
   cardRotation = 0;
