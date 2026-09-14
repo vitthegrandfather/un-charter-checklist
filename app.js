@@ -76,6 +76,7 @@ let cards = [],
   vocabOrder = [],
   vocabIndex = 0,
   vocabFlipped = false,
+  vocabRotation = 0,
   vocabLearnMode = Boolean(savedUi.vocabLearnMode),
   vocabGermanFirst = Boolean(savedUi.vocabGermanFirst),
   uiRestored = false;
@@ -696,6 +697,7 @@ function renderVocabulary() {
     element.classList.toggle("term-long", text.length > 48);
   });
   $("#vocabCard").classList.toggle("flipped", vocabFlipped);
+  $("#vocabCard .vocab-card-inner").style.transform = `rotateX(${vocabRotation}deg)`;
   $("#vocabLearnMode").checked = vocabLearnMode;
   const shuffled = vocabOrder.some((id, index) => id !== index);
   $("#vocabShuffle").classList.toggle("state-on", shuffled);
@@ -749,12 +751,14 @@ function moveVocabulary(step) {
   if (next === vocabIndex && !learningChanged) return;
   vocabIndex = next;
   vocabFlipped = false;
+  vocabRotation = 0;
   if (learningChanged) save();
   else renderVocabulary();
   animateStudyCard($("#vocabCard"), step);
 }
-function flipVocabulary() {
+function flipVocabulary(direction = 1) {
   vocabFlipped = !vocabFlipped;
+  vocabRotation += direction * 180;
   if (!vocabLearnMode && vocabFlipped && !state.vocabLearned.includes(currentVocab().id)) {
     state.vocabLearned.push(currentVocab().id);
     save();
@@ -927,6 +931,7 @@ $("#vocabList").addEventListener("click", (e) => {
   vocabOrder = vocabulary.map((word) => word.id);
   vocabIndex = vocabOrder.indexOf(id);
   vocabFlipped = false;
+  vocabRotation = 0;
   renderVocabulary();
   $("#vocabCard").scrollIntoView({ behavior: "smooth", block: "center" });
 });
@@ -953,16 +958,19 @@ $("#vocabShuffle").addEventListener("click", () => {
     vocabIndex = vocabOrder.indexOf(currentId);
   }
   vocabFlipped = false;
+  vocabRotation = 0;
   renderVocabulary();
 });
 $("#vocabSwap").addEventListener("click", () => {
   vocabGermanFirst = !vocabGermanFirst;
   vocabFlipped = false;
+  vocabRotation = 0;
   renderVocabulary();
 });
 $("#vocabRestart").addEventListener("click", () => {
   vocabIndex = 0;
   vocabFlipped = false;
+  vocabRotation = 0;
   renderVocabulary();
   $("#vocabCard").scrollIntoView({ behavior: "smooth", block: "center" });
 });
@@ -971,6 +979,7 @@ $("#vocabReset").addEventListener("click", () => {
   state.vocabLearned = [];
   vocabIndex = 0;
   vocabFlipped = false;
+  vocabRotation = 0;
   save();
 });
 $("#todayList").addEventListener("click", (e) => {
@@ -1166,9 +1175,8 @@ document.addEventListener("keydown", (e) => {
       e.preventDefault();
     if (e.key === "ArrowLeft") moveVocabulary(-1);
     if (e.key === "ArrowRight") moveVocabulary(1);
-    if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.code === "Space") {
-      flipVocabulary();
-    }
+    if (e.key === "ArrowUp") flipVocabulary(-1);
+    if (e.key === "ArrowDown" || e.code === "Space") flipVocabulary(1);
     return;
   }
   if (
