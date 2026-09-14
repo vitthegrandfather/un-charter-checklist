@@ -1873,7 +1873,19 @@ button {
 .vocab-card {
   isolation: isolate;
   perspective: 1800px;
+  position: relative;
+  will-change: transform, opacity;
 }
+.vocab-swipe-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 18px;
+  opacity: 0;
+  pointer-events: none;
+}
+.vocab-swipe-tint.is-learning { background: #e55e61; }
+.vocab-swipe-tint.is-known { background: #45b985; }
 .vocab-card-inner {
   will-change: transform;
   transition: transform 280ms cubic-bezier(0.77, 0, 0.175, 1);

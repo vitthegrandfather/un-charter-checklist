@@ -102,6 +102,7 @@ let cards = [],
     : null,
   vocabPointerStart = null,
   vocabSwipeHandled = false,
+  vocabSwipeAnimating = false,
   uiRestored = false;
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
@@ -844,7 +845,7 @@ function renderVocabularyList() {
     )
     .join("");
 }
-function moveVocabulary(step) {
+function moveVocabulary(step, animate = true) {
   let learningChanged = false;
   if (vocabLearnMode) {
     const id = currentVocab().id;
@@ -873,7 +874,74 @@ function moveVocabulary(step) {
     void inner.offsetWidth;
     inner.style.removeProperty("transition");
   }
-  animateStudyCard($("#vocabCard"), step);
+  if (animate) animateStudyCard($("#vocabCard"), step);
+}
+function clearVocabularyDrag() {
+  const card = $("#vocabCard");
+  const tint = card.querySelector(".vocab-swipe-tint");
+  card.style.removeProperty("transform");
+  card.classList.remove("is-dragging");
+  tint.style.removeProperty("opacity");
+  tint.classList.remove("is-known", "is-learning");
+}
+async function settleVocabularyDrag() {
+  const card = $("#vocabCard");
+  const tint = card.querySelector(".vocab-swipe-tint");
+  const from = card.style.transform || "translateX(0) rotate(0deg)";
+  vocabSwipeAnimating = true;
+  const cardAnimation = card.animate(
+    [{ transform: from }, { transform: "translateX(0) rotate(0deg)" }],
+    { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+  );
+  const tintAnimation = tint.animate(
+    [{ opacity: Number(tint.style.opacity || 0) }, { opacity: 0 }],
+    { duration: 140, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+  );
+  clearVocabularyDrag();
+  try { await Promise.all([cardAnimation.finished, tintAnimation.finished]); } catch {}
+  vocabSwipeAnimating = false;
+}
+async function animateVocabularyDecision(step) {
+  if (vocabSwipeAnimating) return;
+  const card = $("#vocabCard");
+  const tint = card.querySelector(".vocab-swipe-tint");
+  const direction = step > 0 ? 1 : -1;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  vocabSwipeAnimating = true;
+  if (reduced) {
+    clearVocabularyDrag();
+    moveVocabulary(step, false);
+    vocabSwipeAnimating = false;
+    return;
+  }
+  tint.classList.toggle("is-known", direction > 0);
+  tint.classList.toggle("is-learning", direction < 0);
+  const from = card.style.transform || "translateX(0) rotate(0deg)";
+  const exit = card.animate(
+    [
+      { transform: from, opacity: 1 },
+      { transform: `translateX(${direction * 118}%) rotate(${direction * 9}deg)`, opacity: 0.18 },
+    ],
+    { duration: 220, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "forwards" },
+  );
+  const tintExit = tint.animate(
+    [{ opacity: Number(tint.style.opacity || 0.2) }, { opacity: 0.72 }],
+    { duration: 150, easing: "ease-out", fill: "forwards" },
+  );
+  try { await exit.finished; } catch {}
+  moveVocabulary(step, false);
+  exit.cancel();
+  tintExit.cancel();
+  clearVocabularyDrag();
+  const enter = card.animate(
+    [
+      { transform: `translateX(${-direction * 28}px)`, opacity: 0 },
+      { transform: "translateX(0)", opacity: 1 },
+    ],
+    { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+  );
+  try { await enter.finished; } catch {}
+  vocabSwipeAnimating = false;
 }
 function flipVocabulary(direction = 1) {
   vocabFlipped = !vocabFlipped;
@@ -1146,19 +1214,57 @@ $("#vocabCard").addEventListener("click", () => {
   flipVocabulary();
 });
 $("#vocabCard").addEventListener("pointerdown", (event) => {
-  vocabPointerStart = { x: event.clientX, y: event.clientY };
+  if (vocabSwipeAnimating) return;
+  vocabPointerStart = {
+    x: event.clientX,
+    y: event.clientY,
+    time: performance.now(),
+    pointerId: event.pointerId,
+  };
+  if (vocabLearnMode) event.currentTarget.setPointerCapture(event.pointerId);
+});
+$("#vocabCard").addEventListener("pointermove", (event) => {
+  if (!vocabLearnMode || !vocabPointerStart || vocabSwipeAnimating) return;
+  const dx = event.clientX - vocabPointerStart.x;
+  const dy = event.clientY - vocabPointerStart.y;
+  if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) return;
+  const card = event.currentTarget;
+  const tint = card.querySelector(".vocab-swipe-tint");
+  const progress = Math.min(Math.abs(dx) / Math.max(card.offsetWidth * 0.42, 1), 1);
+  card.classList.add("is-dragging");
+  card.style.transform = `translateX(${dx}px) rotate(${dx / card.offsetWidth * 7}deg)`;
+  tint.classList.toggle("is-known", dx > 0);
+  tint.classList.toggle("is-learning", dx < 0);
+  tint.style.opacity = String(progress * 0.62);
 });
 $("#vocabCard").addEventListener("pointerup", (event) => {
   if (!vocabPointerStart) return;
   const dx = event.clientX - vocabPointerStart.x;
   const dy = event.clientY - vocabPointerStart.y;
+  const elapsed = Math.max(performance.now() - vocabPointerStart.time, 1);
+  const velocity = Math.abs(dx) / elapsed;
   vocabPointerStart = null;
-  if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy)) return;
-  vocabSwipeHandled = true;
-  moveVocabulary(vocabLearnMode ? (dx > 0 ? 1 : -1) : (dx < 0 ? 1 : -1));
+  if (event.currentTarget.hasPointerCapture(event.pointerId))
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  if (Math.abs(dx) <= Math.abs(dy)) {
+    if (vocabLearnMode) settleVocabularyDrag();
+    return;
+  }
+  if (Math.abs(dx) > 8) {
+    vocabSwipeHandled = true;
+    setTimeout(() => { vocabSwipeHandled = false; }, 0);
+  }
+  const accepted = Math.abs(dx) >= 72 || (Math.abs(dx) >= 24 && velocity > 0.45);
+  if (!accepted) {
+    if (vocabLearnMode) settleVocabularyDrag();
+    return;
+  }
+  if (vocabLearnMode) animateVocabularyDecision(dx > 0 ? 1 : -1);
+  else moveVocabulary(dx < 0 ? 1 : -1);
 });
 $("#vocabCard").addEventListener("pointercancel", () => {
   vocabPointerStart = null;
+  if (vocabLearnMode) settleVocabularyDrag();
 });
 $("#vocabPrev").addEventListener("click", () => moveVocabulary(-1));
 $("#vocabNext").addEventListener("click", () => moveVocabulary(1));
