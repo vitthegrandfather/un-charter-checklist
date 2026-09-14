@@ -283,7 +283,12 @@ textarea:focus-visible {
 .ink-btn,
 .learn-btn {
   background: var(--ink);
-  color: #fff;
+  color: var(--paper);
+}
+.ink-btn:disabled,
+.learn-btn:disabled {
+  opacity: 0.62;
+  cursor: wait;
 }
 .toolbar {
   border: 2px solid var(--ink);
@@ -907,7 +912,7 @@ dialog textarea {
   text-overflow: ellipsis;
   white-space: nowrap;
   background: var(--ink);
-  color: #fff;
+  color: var(--paper);
 }
 .article.hard {
   box-shadow: inset 7px 0 0 var(--red);
