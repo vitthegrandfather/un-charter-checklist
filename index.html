@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=8" />
+    <link rel="stylesheet" href="styles.css?v=9" />
   </head>
   <body>
     <a class="skip" href="#content">До вмісту</a>
@@ -99,7 +99,12 @@
             type="search"
             placeholder="Знайти статтю"
             aria-label="Знайти статтю"
-          /><button id="resetBtn" class="quiet">Скинути</button>
+          /><div class="filter-row" id="filterRow" aria-label="Фільтри статей">
+            <button class="active" data-filter="all">Усі</button>
+            <button data-filter="learned">Вивчені</button>
+            <button data-filter="hard">Складні</button>
+            <button data-filter="review">Повторити</button>
+          </div><button id="resetBtn" class="quiet">Скинути</button>
         </section>
         <section class="article-grid" id="articleGrid"></section>
         <p class="empty" id="empty">За цим запитом нічого не знайдено.</p>
@@ -111,7 +116,8 @@
             <h2>Картки</h2>
           </div>
           <div class="study-tools">
-            <button id="shuffleBtn">⇄ Перемішати</button
+            <button id="fullscreenCard">На весь екран</button
+            ><button id="shuffleBtn">⇄ Перемішати</button
             ><span id="cardCounter">1 / 39</span>
           </div>
         </div>
@@ -362,6 +368,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=8"></script>
+    <script src="app.js?v=9"></script>
   </body>
 </html>

@@ -23,6 +23,7 @@ const blankState = () => ({
   nextReview: {},
   reviewLevel: {},
   studyDates: [],
+  dailyPlans: {},
 });
 function normalize(raw = {}) {
   const s = Object.assign(blankState(), raw);
@@ -31,6 +32,8 @@ function normalize(raw = {}) {
   );
   s.difficulty =
     s.difficulty && typeof s.difficulty === "object" ? s.difficulty : {};
+  s.dailyPlans =
+    s.dailyPlans && typeof s.dailyPlans === "object" ? s.dailyPlans : {};
   s.hard.forEach((n) => {
     if (!s.difficulty[n]) s.difficulty[n] = "hard";
   });
@@ -55,7 +58,8 @@ let cards = [],
   cloudTimer = null,
   authMode = "signin",
   currentProfile = null,
-  groupProfiles = [];
+  groupProfiles = [],
+  articleFilter = "all";
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
     const d = new Date();
@@ -305,6 +309,21 @@ function forecast() {
   d.setDate(d.getDate() + Math.ceil(left / Math.max(1, dailyGoal())));
   return formatDate(d);
 }
+function todayPlan() {
+  const key = todayKey();
+  const saved = Array.isArray(state.dailyPlans[key])
+    ? state.dailyPlans[key].filter((n) => ARTICLES.includes(n))
+    : [];
+  if (saved.length) return saved;
+  const plan = ARTICLES.filter((n) => !has("learned", n)).slice(
+    0,
+    Math.max(0, dailyGoal()),
+  );
+  state.dailyPlans[key] = plan;
+  localStorage.setItem(KEY, JSON.stringify(state));
+  queueCloudSave();
+  return plan;
+}
 function renderMetrics() {
   const done = state.learned.length;
   $("#doneCount").textContent = done;
@@ -312,17 +331,25 @@ function renderMetrics() {
   $("#streak").textContent = streak();
   $("#forecast").textContent = forecast();
   const goal = dailyGoal(),
-    left = ARTICLES.filter((n) => !has("learned", n));
-  $("#todayTitle").textContent =
-    goal === 0
-      ? "План виконано"
-      : `${goal} ${goal === 1 ? "стаття" : goal < 5 ? "статті" : "статей"}`;
-  $("#todayList").innerHTML = goal
-    ? left
-        .slice(0, goal)
-        .map((n) => `<span>Стаття ${n}</span>`)
+    plan = todayPlan(),
+    completed = plan.filter((n) => has("learned", n)).length,
+    planDone = plan.length > 0 && completed === plan.length;
+  $("#todayTitle").textContent = plan.length
+    ? planDone
+      ? "План виконано ✓"
+      : `Виконано ${completed} з ${plan.length}`
+    : "Час повторювати ✓";
+  $("#todayList").innerHTML = plan.length
+    ? plan
+        .map(
+          (n) =>
+            `<button class="today-article ${has("learned", n) ? "done" : ""}" data-today-article="${n}" aria-label="Відкрити статтю ${n}"><span>${has("learned", n) ? "✓" : "○"}</span><b>Стаття ${n}</b><small>Artikel ${n}</small></button>`,
+        )
         .join("")
-    : "<span>Час повторювати ✓</span>";
+    : "<span class=\"today-complete\">Усі нові статті вже пройдено</span>";
+  $("#startToday").textContent = planDone
+    ? "Повторити план →"
+    : "Продовжити план →";
   $("#dailyGoal").textContent = goal;
   const days = studyDaysLeft(),
     lag = Math.floor((Math.max(0, 24 - days) * ARTICLES.length) / 24) - done;
@@ -353,8 +380,21 @@ function articleCard(n) {
   return `<article class="article ${l ? "learned" : ""} ${r ? "review" : ""} ${d === "hard" ? "hard" : ""}" data-n="${n}" tabindex="0" aria-label="Відкрити картку статті ${n}"><div class="article-title">Стаття ${n}<small>Artikel ${n}</small></div><div class="article-state">${l ? "Вивчено" : ""}${r ? " · Повторити" : ""}${d === "hard" ? " · Складна" : ""}</div><button class="learn-toggle article-primary ${l ? "state-on" : ""}">${l ? "✓ Вивчено" : "Позначити вивчено"}</button><div class="article-actions"><button class="hard-toggle ${d === "hard" ? "state-on" : ""}" data-level="hard">${d === "hard" ? "✓ Складна" : "Позначити як складну"}</button><button class="review-toggle ${r ? "state-on" : ""}">↻ Повторити</button></div><button class="note-toggle article-note ${note ? "state-on" : ""}">${note ? "✎ Є нотатка" : "＋ Нотатка"}</button></article>`;
 }
 function renderArticles() {
-  const q = $("#search").value.trim();
-  const shown = ARTICLES.filter((n) => !q || String(n).includes(q));
+  const q = $("#search").value.trim().toLocaleLowerCase();
+  const shown = ARTICLES.filter((n) => {
+    const card = cards.find((c) => c.n === n);
+    const matchesText =
+      !q ||
+      String(n).includes(q) ||
+      card?.uk.toLocaleLowerCase().includes(q) ||
+      card?.de.toLocaleLowerCase().includes(q);
+    const matchesFilter =
+      articleFilter === "all" ||
+      (articleFilter === "learned" && has("learned", n)) ||
+      (articleFilter === "hard" && state.difficulty[n] === "hard") ||
+      (articleFilter === "review" && dueArticles().includes(n));
+    return matchesText && matchesFilter;
+  });
   $("#articleGrid").innerHTML = shown.map(articleCard).join("");
   $("#empty").style.display = shown.length ? "none" : "block";
 }
@@ -418,6 +458,7 @@ function renderAccount() {
     : "<p>Увійдіть, щоб побачити рейтинг групи.</p>";
 }
 function switchView(name) {
+  document.body.classList.toggle("cards-open", name === "cards");
   $$(".view").forEach((v) =>
     v.classList.toggle("active", v.id === `${name}View`),
   );
@@ -455,12 +496,13 @@ function mergeCards(raw) {
 async function loadCards() {
   try {
     cards = mergeCards(
-      await fetch("cards.txt").then((r) => {
+      await fetch("cards.txt?v=9").then((r) => {
         if (!r.ok) throw Error();
         return r.text();
       }),
     );
     order = cards.map((_, i) => i);
+    renderArticles();
     renderCard();
   } catch (e) {
     $("#cardUk").textContent =
@@ -478,7 +520,11 @@ function renderCard() {
   $("#cardDe").textContent = c.de;
   $("#flashcard").classList.toggle("flipped", flipped);
   $("#cardCounter").textContent = `${cardIndex + 1} / ${order.length}`;
-  $("#cardLearned").textContent = has("learned", c.n) ? "Вивчено ✓" : "Знаю ✓";
+  $("#prevCard").disabled = cardIndex === 0;
+  $("#nextCard").disabled = cardIndex === order.length - 1;
+  $("#cardLearned").textContent = has("learned", c.n)
+    ? "✓ Вивчено · скасувати"
+    : "✓ Позначити вивчено";
   $("#cardReview").classList.toggle("state-on", has("review", c.n));
   $$(".difficulty-actions button").forEach((b) =>
     b.classList.toggle("state-on", state.difficulty[c.n] === b.dataset.level),
@@ -498,7 +544,9 @@ function animateCard(step) {
   );
 }
 function moveCard(step) {
-  cardIndex = (cardIndex + step + order.length) % order.length;
+  const next = Math.max(0, Math.min(cardIndex + step, order.length - 1));
+  if (next === cardIndex) return;
+  cardIndex = next;
   flipped = false;
   renderCard();
   animateCard(step);
@@ -600,6 +648,19 @@ $("#leaderboardList").addEventListener("click", (e) => {
   $("#profileDialog").showModal();
 });
 $("#search").addEventListener("input", renderArticles);
+$("#filterRow").addEventListener("click", (e) => {
+  const button = e.target.closest("[data-filter]");
+  if (!button) return;
+  articleFilter = button.dataset.filter;
+  $$("#filterRow [data-filter]").forEach((b) =>
+    b.classList.toggle("active", b === button),
+  );
+  renderArticles();
+});
+$("#todayList").addEventListener("click", (e) => {
+  const button = e.target.closest("[data-today-article]");
+  if (button) openArticle(+button.dataset.todayArticle);
+});
 $("#articleGrid").addEventListener("click", (e) => {
   const a = e.target.closest(".article");
   if (!a) return;
@@ -644,7 +705,7 @@ $("#shuffleBtn").addEventListener("click", () => {
   flipped = false;
   renderCard();
 });
-$("#cardLearned").addEventListener("click", () => learn(currentCard().n, true));
+$("#cardLearned").addEventListener("click", () => learn(currentCard().n));
 $("#cardReview").addEventListener("click", () => markReview(currentCard().n));
 $$(".difficulty-actions button").forEach((b) =>
   b.addEventListener("click", () =>
@@ -652,10 +713,7 @@ $$(".difficulty-actions button").forEach((b) =>
   ),
 );
 $("#startToday").addEventListener("click", () => {
-  const todo = ARTICLES.filter((n) => !has("learned", n)).slice(
-    0,
-    Math.max(1, dailyGoal()),
-  );
+  const todo = todayPlan();
   order = todo
     .map((n) => cards.findIndex((c) => c.n === n))
     .filter((i) => i >= 0);
@@ -664,6 +722,15 @@ $("#startToday").addEventListener("click", () => {
   flipped = false;
   switchView("cards");
   renderCard();
+});
+$("#fullscreenCard").addEventListener("click", async () => {
+  if (document.fullscreenElement) await document.exitFullscreen();
+  else await $("#cardsView").requestFullscreen();
+});
+document.addEventListener("fullscreenchange", () => {
+  $("#fullscreenCard").textContent = document.fullscreenElement
+    ? "Згорнути"
+    : "На весь екран";
 });
 $("#reviewCard").addEventListener("click", () => {
   reviewFlipped = !reviewFlipped;
@@ -771,10 +838,10 @@ document.addEventListener("keydown", (e) => {
     ["INPUT", "TEXTAREA"].includes(e.target.tagName)
   )
     return;
-  if (e.key === "ArrowLeft") moveCard(-1);
-  if (e.key === "ArrowRight") moveCard(1);
-  if (e.key === "ArrowUp") moveCard(-1);
-  if (e.key === "ArrowDown") moveCard(1);
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key))
+    e.preventDefault();
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") moveCard(-1);
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") moveCard(1);
   if (e.code === "Space") {
     e.preventDefault();
     flipped = !flipped;
