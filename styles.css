@@ -147,10 +147,11 @@ textarea:focus-visible {
 .deadline-grid {
   border-top: 2px solid var(--ink);
   padding-top: 22px;
-  display: grid;
+  display: none;
   grid-template-columns: 1.5fr 0.55fr;
   gap: 18px;
 }
+.tracker-open .deadline-grid { display: grid; }
 .countdown {
   display: flex;
   gap: clamp(14px, 4vw, 38px);
@@ -1250,7 +1251,7 @@ dialog textarea {
     transform: translateX(-50%);
     width: min(460px, calc(100% - 20px));
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     background: var(--card);
     border: 2px solid var(--ink);
     box-shadow: 4px 4px 0 var(--ink);
@@ -2091,7 +2092,7 @@ button {
 }
 .top-actions .tabs {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
   width: 100%;
   margin: 0;

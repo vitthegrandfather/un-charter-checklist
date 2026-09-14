@@ -570,6 +570,7 @@ function renderAccount() {
     : "<p>Увійдіть, щоб побачити рейтинг групи.</p>";
 }
 function switchView(name, remember = true) {
+  document.body.classList.toggle("tracker-open", name === "tracker");
   document.body.classList.toggle("cards-open", name === "cards");
   document.body.classList.toggle("vocabulary-open", name === "vocabulary");
   $$(".view").forEach((v) =>
