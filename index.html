@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=17" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body>
     <a class="skip" href="#content">До вмісту</a>
@@ -87,7 +87,9 @@
           </article>
         </div>
         <button class="vocab-launch" id="vocabLaunch">
-          <span><small>Окремий набір · Мова фаху</small><strong>Вчити 150 ключових слів</strong></span>
+          <span><small>Окремий набір · Мова фаху</small><strong>Вчити 150 ключових слів</strong>
+            <span class="vocab-launch-progress"><span id="vocabLaunchProgressText">Пройдено 0 із 150</span><i><b id="vocabLaunchProgressBar"></b></i></span>
+          </span>
           <b>Почати →</b>
         </button>
         <section class="today">
@@ -396,6 +398,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=20"></script>
+    <script src="app.js?v=21"></script>
   </body>
 </html>

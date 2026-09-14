@@ -685,6 +685,12 @@ function renderVocabulary() {
   $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}`;
   $("#vocabPrev").disabled = vocabIndex === 0;
   $("#vocabNext").disabled = vocabIndex === vocabOrder.length - 1;
+  const completed = state.vocabLearned.filter((id) => id < vocabulary.length).length;
+  $("#vocabLaunchProgressText").textContent = `Пройдено ${completed} із ${vocabulary.length}`;
+  $("#vocabLaunchProgressBar").style.setProperty(
+    "--progress",
+    completed / vocabulary.length,
+  );
   renderVocabularyList();
   persistUiState();
 }
@@ -706,6 +712,13 @@ function moveVocabulary(step) {
   vocabFlipped = false;
   renderVocabulary();
   animateStudyCard($("#vocabCard"), step);
+}
+function flipVocabulary() {
+  vocabFlipped = !vocabFlipped;
+  if (vocabFlipped && !state.vocabLearned.includes(currentVocab().id)) {
+    state.vocabLearned.push(currentVocab().id);
+    save();
+  } else renderVocabulary();
 }
 function currentCard() {
   return cards[order[cardIndex]];
@@ -878,8 +891,7 @@ $("#vocabList").addEventListener("click", (e) => {
   $("#vocabCard").scrollIntoView({ behavior: "smooth", block: "center" });
 });
 $("#vocabCard").addEventListener("click", () => {
-  vocabFlipped = !vocabFlipped;
-  renderVocabulary();
+  flipVocabulary();
 });
 $("#vocabPrev").addEventListener("click", () => moveVocabulary(-1));
 $("#vocabNext").addEventListener("click", () => moveVocabulary(1));
@@ -1077,8 +1089,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft") moveVocabulary(-1);
     if (e.key === "ArrowRight") moveVocabulary(1);
     if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.code === "Space") {
-      vocabFlipped = !vocabFlipped;
-      renderVocabulary();
+      flipVocabulary();
     }
     return;
   }

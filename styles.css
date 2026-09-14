@@ -1792,3 +1792,102 @@ button {
     }
   }
 }
+
+/* Softer dark theme and compact mobile study */
+.vocab-launch-progress {
+  width: min(420px, 62vw);
+  display: grid !important;
+  gap: 6px !important;
+  color: #171813;
+  font: 800 11px/1 Arial, sans-serif;
+}
+.vocab-launch-progress > i {
+  height: 7px;
+  overflow: hidden;
+  border: 1px solid #171813;
+  background: rgba(255, 255, 255, 0.48);
+}
+.vocab-launch-progress > i > b {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #171813;
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  transition: transform var(--motion-ui) var(--ease-out);
+}
+[data-theme="dark"] {
+  --ink: #d7dbd4;
+  --paper: #20231f;
+  --card: #292d28;
+  --line: #3b403a;
+  --muted: #969d95;
+  --red: #bc7770;
+  --green: #78a18b;
+  --yellow: #b7a768;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+[data-theme="dark"] body:before { opacity: 0.025; }
+[data-theme="dark"] .hero,
+[data-theme="dark"] .metric,
+[data-theme="dark"] .today,
+[data-theme="dark"] .toolbar,
+[data-theme="dark"] .article,
+[data-theme="dark"] .flash-face,
+[data-theme="dark"] .vocab-face,
+[data-theme="dark"] .vocab-row,
+[data-theme="dark"] .account-card,
+[data-theme="dark"] .leaderboard,
+[data-theme="dark"] dialog {
+  border-width: 1px;
+  border-color: var(--line);
+  box-shadow: none;
+}
+[data-theme="dark"] button,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea {
+  border-color: var(--line);
+}
+[data-theme="dark"] .flash-back,
+[data-theme="dark"] .vocab-back {
+  background: #2d322f;
+}
+[data-theme="dark"] .article.learned {
+  background: #29352f;
+}
+[data-theme="dark"] .article.review { box-shadow: inset 3px 0 0 #8f8358; }
+[data-theme="dark"] .article.hard { box-shadow: inset 3px 0 0 #8f5d58; }
+[data-theme="dark"] .article.review.hard {
+  box-shadow: inset 3px 0 0 #8f5d58, inset 6px 0 0 #8f8358;
+}
+[data-theme="dark"] button:hover {
+  background: #333832;
+  color: var(--ink);
+}
+[data-theme="dark"] .tab.active,
+[data-theme="dark"] .filter-row button.active {
+  background: #d7dbd4;
+  color: #20231f;
+}
+[data-theme="dark"] .vocab-nav,
+[data-theme="dark"] .arrow {
+  box-shadow: none;
+}
+@media (max-width: 520px) {
+  .vocab-launch-progress { width: 100%; }
+  .vocab-launch { padding: 18px; }
+  .vocab-card { height: min(64dvh, 560px); min-height: 360px; }
+  .vocab-face { padding: 40px 22px; }
+  .vocab-face strong { font-size: clamp(28px, 9vw, 44px); }
+  .vocab-nav { border-radius: 50%; }
+  .vocab-list { gap: 8px; }
+  .vocab-row { min-height: 72px; }
+  body.cards-open .flashcard-scene,
+  body.cards-open .flashcard-inner {
+    height: calc(100dvh - 250px);
+    min-height: 390px;
+  }
+  body.cards-open .flash-face { padding: 42px 20px 24px; }
+  body.cards-open .card-copy { font-size: clamp(17px, 4.8vw, 23px); }
+  .bottom-nav { border-top: 1px solid var(--line); }
+}
