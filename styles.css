@@ -887,12 +887,17 @@ dialog textarea {
   text-align: left;
   align-items: center;
   gap: 12px;
-  padding: 14px 6px;
+  min-height: 78px;
+  padding: 14px 12px;
   background: transparent;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
 }
 .leader-row:hover {
   background: var(--paper);
   color: var(--ink);
+  transform: translateX(3px);
 }
 .leader-row > b,
 .leader-row > em {
@@ -900,31 +905,77 @@ dialog textarea {
     900 23px Arial,
     sans-serif;
 }
-.leader-row span {
+.leader-rank {
+  color: var(--muted);
+}
+.leader-copy {
   display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+.leader-copy > strong {
+  font: 900 17px/1.1 Arial, sans-serif;
+  overflow-wrap: anywhere;
+}
+.leader-meta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
 }
 .leader-row small {
   color: var(--muted);
+  font: 700 12px/1.2 Arial, sans-serif;
 }
-.leader-row mark {
-  color: #16704a;
-  background: transparent;
-  font-weight: 800;
+.live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  border: 1px solid color-mix(in srgb, var(--green) 45%, transparent);
+  border-radius: 999px;
+  padding: 4px 9px 4px 7px;
+  color: #185f42;
+  background: color-mix(in srgb, var(--green) 11%, var(--card));
+  font: 800 11px/1 Arial, sans-serif;
+  white-space: nowrap;
 }
-.online-dot {
-  display: inline-block;
-  width: 0.62rem;
-  height: 0.62rem;
-  margin-left: 0.45rem;
+.live-status i {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
   border-radius: 50%;
-  background: #22a96b;
-  box-shadow: 0 0 0 3px color-mix(in srgb, #22a96b 18%, transparent);
+  background: #29a66a;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #29a66a 18%, transparent);
+  animation: onlinePulse 2.2s ease-in-out infinite;
 }
-[data-theme="dark"] .leader-row mark {
-  color: #75d4a8;
+[data-theme="dark"] .live-status {
+  color: #a9dfc3;
+  background: color-mix(in srgb, var(--green) 18%, var(--card));
+}
+@keyframes onlinePulse {
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, #29a66a 7%, transparent);
+  }
 }
 .leader-row em {
   font-style: normal;
+}
+@media (max-width: 520px) {
+  .leader-row {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    gap: 9px;
+    padding-inline: 8px;
+  }
+  .leader-row > b,
+  .leader-row > em {
+    font-size: 19px;
+  }
+  .leader-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
 }
 .profile-stats {
   display: grid;

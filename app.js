@@ -518,7 +518,7 @@ function renderAccount() {
                 : presence
                   ? "Зараз на сайті"
                   : "";
-              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}"><b>${i + 1}</b><span><strong>${safe(p.display_name)}${presence ? '<i class="online-dot" aria-label="Онлайн"></i>' : ""}</strong><small>${p.learned_count} з 39 статей${liveText ? ` · <mark>${liveText}</mark>` : ""}</small></span><em>${p.learned_count}</em></button>`;
+              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}"><b class="leader-rank">${i + 1}</b><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
             },
           )
           .join("")
