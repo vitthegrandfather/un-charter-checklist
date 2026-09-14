@@ -15,7 +15,10 @@
     header:after{content:"UN";position:absolute;right:-10px;bottom:-48px;font:bold 190px/1 Arial,sans-serif;color:transparent;-webkit-text-stroke:2px #d8d3c5;z-index:0}
     header>*{position:relative;z-index:1}.kicker{font:700 12px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--red)}
     h1{font:900 clamp(38px,8vw,82px)/.92 Arial,sans-serif;letter-spacing:-.06em;margin:16px 0 18px;max-width:760px}
-    .intro{max-width:650px;font-size:18px;margin:0;color:#45463f}.private{display:inline-block;margin-top:22px;padding:8px 12px;border:1px solid var(--green);color:var(--green);font:700 13px Arial,sans-serif;background:#e6efe8}
+    .intro{max-width:650px;font-size:18px;margin:0;color:#45463f}
+    .deadline{margin-top:26px;border-top:2px solid var(--ink);padding-top:22px;display:grid;grid-template-columns:1.35fr .65fr;gap:20px;align-items:end}.deadline-title{font:700 12px Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+    .countdown{display:flex;gap:clamp(12px,3vw,28px);margin-top:10px}.time-box strong{font:900 clamp(34px,6vw,64px)/.85 Arial,sans-serif;letter-spacing:-.05em}.time-box span{display:block;margin-top:8px;font:700 10px Arial,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+    .pace{border:2px solid var(--ink);padding:15px;background:#fff}.pace-top{display:flex;gap:10px;align-items:center;font:800 13px Arial,sans-serif;text-transform:uppercase;letter-spacing:.08em}.signal{width:20px;height:20px;border:2px solid var(--ink);border-radius:50%;background:#999;box-shadow:0 0 0 4px #e7e4db}.pace strong{display:block;font:900 34px/1 Arial,sans-serif;margin:14px 0 5px}.pace-copy{font:14px Arial,sans-serif;color:#4f5049}.pace.green .signal{background:#36a66f;box-shadow:0 0 0 4px #cce9da}.pace.yellow .signal{background:#f3be32;box-shadow:0 0 0 4px #f8e8b8}.pace.red .signal{background:#e34b3b;box-shadow:0 0 0 4px #f3cbc6}
     .dashboard{display:grid;grid-template-columns:1fr 2fr;gap:18px;margin:34px 0 20px}
     .stat,.controls{border:2px solid var(--ink);background:var(--card);padding:20px}.number{font:900 46px/1 Arial,sans-serif}.label{font:700 12px Arial,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-top:8px}
     .bar{height:14px;border:2px solid var(--ink);margin-top:18px;background:#fff}.bar>span{display:block;height:100%;width:0;background:var(--green);transition:width .35s ease}
@@ -24,7 +27,7 @@
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.article{position:relative;border:2px solid var(--ink);background:var(--card);min-height:134px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;transition:.18s ease;cursor:pointer}.article:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
     .article.done{background:#dce9df;border-color:var(--green)}.article.hidden{display:none}.article-no{font:900 26px/1 Arial,sans-serif;letter-spacing:-.03em}.article-de{color:var(--muted);font-style:italic;margin-top:6px}.check{align-self:flex-end;width:32px;height:32px;border:2px solid var(--ink);background:white;display:grid;place-items:center;font:900 20px Arial,sans-serif}.done .check{background:var(--green);color:#fff;border-color:var(--green)}
     .empty{display:none;text-align:center;padding:44px;border:2px dashed var(--line);color:var(--muted)}footer{margin-top:28px;color:var(--muted);font:13px Arial,sans-serif;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-    @media(max-width:760px){.dashboard{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}header:after{font-size:130px}.wrap{width:min(100% - 20px,1100px);padding-top:10px}}
+    @media(max-width:760px){.deadline,.dashboard{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}header:after{font-size:130px}.wrap{width:min(100% - 20px,1100px);padding-top:10px}}
     @media(max-width:440px){.grid{grid-template-columns:1fr}.article{min-height:108px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
   </style>
@@ -35,7 +38,10 @@
       <div class="kicker">Мова фаху · Lernfortschritt</div>
       <h1>UN Charta<br>Lerntracker</h1>
       <p class="intro">Відмічай статті, які вже вивчив. Прогрес автоматично зберігається у твоєму браузері.</p>
-      <span class="private">✓ Кожен відвідувач бачить лише власні галочки</span>
+      <div class="deadline">
+        <div><div class="deadline-title">Дедлайн · 12 жовтня 2026</div><div class="countdown" aria-label="Час до дедлайну"><div class="time-box"><strong id="days">00</strong><span>днів</span></div><div class="time-box"><strong id="hours">00</strong><span>годин</span></div><div class="time-box"><strong id="minutes">00</strong><span>хвилин</span></div><div class="time-box"><strong id="seconds">00</strong><span>секунд</span></div></div></div>
+        <div class="pace green" id="pace"><div class="pace-top"><span class="signal"></span><span id="paceStatus">Темп нормальний</span></div><strong><span id="dailyGoal">2</span> / день</strong><div class="pace-copy" id="paceCopy">Останні 4 дні залишені на повторення.</div></div>
+      </div>
     </header>
     <section class="dashboard" aria-label="Прогрес і керування">
       <div class="stat"><div><span class="number" id="doneCount">0</span><span class="number"> / 39</span></div><div class="label">Статей вивчено</div><div class="bar" aria-hidden="true"><span id="progressBar"></span></div></div>
@@ -53,15 +59,17 @@
   </main>
   <script>
     const articles=[1,2,3,4,5,6,7,8,9,10,11,17,18,20,22,23,24,27,28,32,33,34,41,42,43,45,50,51,55,61,62,75,92,97,98,102,103,110,111];
-    const key='un-charta-progress-v1'; let learned=new Set(JSON.parse(localStorage.getItem(key)||'[]')); let filter='all';
-    const grid=document.querySelector('#grid'),count=document.querySelector('#doneCount'),bar=document.querySelector('#progressBar'),search=document.querySelector('#search'),empty=document.querySelector('#empty');
+    const key='un-charta-progress-v1', deadline=new Date('2026-10-12T00:00:00+03:00'), reviewDays=4; let learned=new Set(JSON.parse(localStorage.getItem(key)||'[]')); let filter='all';
+    const grid=document.querySelector('#grid'),count=document.querySelector('#doneCount'),bar=document.querySelector('#progressBar'),search=document.querySelector('#search'),empty=document.querySelector('#empty'),pace=document.querySelector('#pace');
     function save(){localStorage.setItem(key,JSON.stringify([...learned].sort((a,b)=>a-b)))}
     function render(){grid.innerHTML=articles.map(n=>`<article class="article ${learned.has(n)?'done':''}" data-n="${n}" tabindex="0" role="checkbox" aria-checked="${learned.has(n)}"><div><div class="article-no">Стаття ${n}</div><div class="article-de">Artikel ${n}</div></div><span class="check" aria-hidden="true">${learned.has(n)?'✓':''}</span></article>`).join(''); update();}
-    function update(){const q=search.value.trim();let visible=0;document.querySelectorAll('.article').forEach(el=>{const n=+el.dataset.n,match=(!q||String(n).includes(q))&&(filter==='all'||(filter==='done')===learned.has(n));el.classList.toggle('hidden',!match);if(match)visible++});count.textContent=learned.size;bar.style.width=(learned.size/articles.length*100)+'%';empty.style.display=visible?'none':'block'}
+    function update(){const q=search.value.trim();let visible=0;document.querySelectorAll('.article').forEach(el=>{const n=+el.dataset.n,match=(!q||String(n).includes(q))&&(filter==='all'||(filter==='done')===learned.has(n));el.classList.toggle('hidden',!match);if(match)visible++});count.textContent=learned.size;bar.style.width=(learned.size/articles.length*100)+'%';empty.style.display=visible?'none':'block';updatePace()}
+    function updatePace(){const now=new Date(),reviewStart=new Date(deadline);reviewStart.setDate(reviewStart.getDate()-reviewDays);const remaining=articles.length-learned.size,studyDays=Math.max(0,Math.ceil((reviewStart-now)/86400000));let perDay=studyDays?Math.ceil(remaining/studyDays):remaining;const totalStudyDays=Math.max(1,Math.ceil((reviewStart-new Date('2026-09-14T00:00:00+03:00'))/86400000)),daysElapsed=Math.max(0,totalStudyDays-studyDays),expected=Math.min(articles.length,Math.floor(daysElapsed*articles.length/totalStudyDays)),lag=expected-learned.size;let level=lag<=1?'green':lag<=4?'yellow':'red';if(studyDays===0&&remaining>0)level='red';pace.className='pace '+level;document.querySelector('#dailyGoal').textContent=perDay;document.querySelector('#paceStatus').textContent=level==='green'?'Темп нормальний':level==='yellow'?'Час прискоритись':'Ризик не встигнути';document.querySelector('#paceCopy').textContent=remaining===0?'Усі статті вивчено. Час повторювати!':studyDays>0?`${remaining} статей залишилось · ${studyDays} навчальних днів · 4 дні на повторення`:`Період повторення вже почався · залишилось ${remaining} статей`}
+    function tick(){const left=Math.max(0,deadline-new Date()),d=Math.floor(left/86400000),h=Math.floor(left/3600000)%24,m=Math.floor(left/60000)%60,s=Math.floor(left/1000)%60;document.querySelector('#days').textContent=String(d).padStart(2,'0');document.querySelector('#hours').textContent=String(h).padStart(2,'0');document.querySelector('#minutes').textContent=String(m).padStart(2,'0');document.querySelector('#seconds').textContent=String(s).padStart(2,'0')}
     function toggle(el){const n=+el.dataset.n;learned.has(n)?learned.delete(n):learned.add(n);save();render()}
     grid.addEventListener('click',e=>{const el=e.target.closest('.article');if(el)toggle(el)});grid.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.article')){e.preventDefault();toggle(e.target)}});
     search.addEventListener('input',update);document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.setAttribute('aria-pressed',x===b));update()}));
-    document.querySelector('#reset').addEventListener('click',()=>{if(confirm('Скинути всі позначки?')){learned.clear();save();render()}});render();
+    document.querySelector('#reset').addEventListener('click',()=>{if(confirm('Скинути всі позначки?')){learned.clear();save();render()}});render();tick();setInterval(tick,1000);
   </script>
 </body>
 </html>
