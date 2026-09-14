@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=33" />
+    <link rel="stylesheet" href="styles.css?v=34" />
   </head>
   <body class="tracker-open">
     <a class="skip" href="#content">До вмісту</a>
@@ -237,64 +237,51 @@
       </section>
       <section class="view account-view" id="accountView">
         <div class="account-heading">
-          <span class="section-label">Профіль і прогрес</span>
+          <span class="section-label">Особистий кабінет</span>
           <h2>Акаунт</h2>
-          <p id="accountLead">Увійдіть, щоб зберігати навчання у хмарі.</p>
         </div>
         <div class="account-grid">
           <article class="account-card account-identity">
-            <span class="metric-label">Профіль</span>
             <div class="account-profile-row">
               <span class="profile-avatar" id="accountAvatar" aria-hidden="true"></span>
-              <div class="account-name-row">
-                <strong id="accountEmail">Гостьовий режим</strong>
-                <button
-                  id="editName"
-                  class="edit-name"
-                  type="button"
-                  aria-label="Змінити ім’я"
-                  title="Змінити ім’я"
-                  hidden
-                >
-                  ✎
-                </button>
+              <div class="account-profile-copy">
+                <span class="metric-label">Ваш профіль</span>
+                <div class="account-name-row">
+                  <strong id="accountEmail">Гостьовий режим</strong>
+                  <button id="editName" class="edit-name" type="button" aria-label="Змінити ім’я" title="Змінити ім’я" hidden>✎</button>
+                </div>
+                <p id="accountLead">Увійдіть, щоб зберігати навчання у хмарі.</p>
+                <small id="accountSync">Прогрес зберігається лише на цьому пристрої</small>
               </div>
             </div>
-            <small id="accountSync"
-              >Прогрес зберігається лише на цьому пристрої</small
-            >
             <button class="ink-btn" id="accountAuth">
               Увійти або зареєструватися
             </button>
           </article>
-          <article class="account-card">
+          <div class="account-stats" aria-label="Статистика навчання">
+          <article class="account-card account-stat">
             <span class="metric-label">Вивчено</span
             ><strong><b id="accountLearned">0</b> / 39</strong
             ><small>статей завершено</small>
           </article>
-          <article class="account-card">
+          <article class="account-card account-stat">
             <span class="metric-label">Складні</span
             ><strong id="accountHard">0</strong
             ><small>позначено для уваги</small>
           </article>
-          <article class="account-card">
+          <article class="account-card account-stat">
             <span class="metric-label">Серія</span
             ><strong><b id="accountStreak">0</b> днів</strong
             ><small>навчання поспіль</small>
           </article>
-          <article class="account-card">
+          <article class="account-card account-stat">
             <span class="metric-label">Повторення</span
             ><strong id="accountReview">0</strong><small>статей у черзі</small>
           </article>
-          <article class="account-card theme-card">
-            <span class="metric-label">Оформлення</span
-            ><strong id="accountThemeName">Світла тема</strong
-            ><button id="accountTheme">Змінити тему</button>
-          </article>
+          </div>
           <article class="account-card personalization-card">
-            <span class="metric-label">Ваш стиль</span>
-            <div class="personalization-section">
-              <strong>Аватарка</strong>
+            <div class="settings-heading"><div><span class="metric-label">Персоналізація</span><h3>Виберіть аватарку</h3></div><small>Вона буде видна у рейтингу</small></div>
+            <div class="personalization-section avatar-section">
               <div class="avatar-picker" id="avatarPicker" aria-label="Виберіть аватарку">
                 <button data-avatar="avatar-01" aria-label="Крокодил-опера"><span class="avatar-art avatar-01"></span></button>
                 <button data-avatar="avatar-02" aria-label="Професор-мока"><span class="avatar-art avatar-02"></span></button>
@@ -322,6 +309,9 @@
                 <input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden />
               </div>
             </div>
+          </article>
+          <article class="account-card appearance-card">
+            <div class="settings-heading"><div><span class="metric-label">Оформлення</span><h3>Вигляд профілю</h3></div><div class="theme-inline"><span id="accountThemeName">Світла тема</span><button id="accountTheme">Змінити</button></div></div>
             <div class="personalization-section">
               <strong>Картка у рейтингу</strong>
               <div class="card-style-picker" id="cardStylePicker" aria-label="Оформлення профілю в рейтингу">
@@ -455,6 +445,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=34"></script>
+    <script src="app.js?v=35"></script>
   </body>
 </html>

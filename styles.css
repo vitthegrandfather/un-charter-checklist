@@ -1948,6 +1948,180 @@ button {
   }
 }
 
+/* Account workspace */
+.account-view {
+  max-width: 1120px;
+  margin-inline: auto;
+}
+.account-heading {
+  margin-bottom: 26px;
+}
+.account-heading h2 {
+  margin-bottom: 0;
+}
+.account-grid {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 0;
+}
+.account-view .account-card {
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: clamp(18px, 3vw, 28px);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.account-identity {
+  grid-column: 1 / -1;
+  min-height: 174px !important;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 28px;
+}
+.account-profile-row {
+  min-width: 0;
+  gap: 20px;
+}
+.account-identity .profile-avatar {
+  width: 92px;
+  height: 92px;
+  border: 3px solid color-mix(in srgb, currentColor 24%, transparent);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .14);
+}
+.account-profile-copy {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+.account-name-row strong {
+  font-size: clamp(25px, 4vw, 38px);
+  letter-spacing: -.035em;
+}
+.account-profile-copy p {
+  max-width: 580px;
+  margin: 0;
+  color: color-mix(in srgb, currentColor 72%, transparent);
+}
+#accountSync {
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  color: color-mix(in srgb, currentColor 72%, transparent);
+  font: 700 11px/1.2 Arial, sans-serif;
+}
+.account-identity #accountAuth {
+  width: min(260px, 100%);
+  min-height: 48px;
+  margin: 0;
+  border-radius: 10px;
+}
+.account-stats {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.account-view .account-stat {
+  padding: 18px 20px;
+  gap: 7px;
+  box-shadow: none;
+}
+.account-stat strong {
+  font-size: clamp(24px, 3vw, 34px);
+  letter-spacing: -.035em;
+}
+.personalization-card {
+  grid-column: span 7;
+}
+.appearance-card {
+  grid-column: span 5;
+}
+.settings-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid var(--line);
+}
+.settings-heading h3 {
+  margin: 7px 0 0;
+  font: 800 clamp(21px, 3vw, 29px)/1 Arial, sans-serif;
+  letter-spacing: -.025em;
+}
+.settings-heading > small {
+  max-width: 180px;
+  text-align: right;
+}
+.avatar-section {
+  margin-top: 18px;
+}
+.personalization-card .avatar-picker {
+  grid-template-columns: repeat(5, minmax(52px, 1fr));
+}
+.theme-inline {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+.theme-inline span {
+  color: var(--muted);
+  font: 700 12px/1 Arial, sans-serif;
+}
+.theme-inline button {
+  min-height: 36px;
+  padding: 7px 11px;
+  border-radius: 9px;
+}
+.appearance-card .personalization-section {
+  margin-top: 18px;
+}
+.appearance-card .card-style-picker {
+  grid-template-columns: repeat(2, minmax(110px, 1fr));
+}
+.appearance-card .card-style-picker button {
+  min-height: 118px;
+}
+
+@media (max-width: 900px) {
+  .personalization-card,
+  .appearance-card { grid-column: 1 / -1; }
+  .personalization-card .avatar-picker { grid-template-columns: repeat(10, 1fr); }
+  .appearance-card .card-style-picker { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 680px) {
+  .account-view { margin-top: 22px; }
+  .account-heading { margin-bottom: 18px; }
+  .account-heading h2 { font-size: 48px; }
+  .account-identity {
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .account-profile-row { align-items: flex-start; }
+  .account-identity .profile-avatar { width: 72px; height: 72px; }
+  .account-identity #accountAuth { width: 100%; }
+  .account-stats { grid-template-columns: repeat(2, 1fr); }
+  .personalization-card .avatar-picker { grid-template-columns: repeat(5, 1fr); }
+  .appearance-card .card-style-picker { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 420px) {
+  .account-view .account-card { padding: 16px; border-radius: 13px; }
+  .account-profile-row { gap: 13px; }
+  .account-identity .profile-avatar { width: 62px; height: 62px; }
+  .account-name-row strong { font-size: 23px; }
+  .account-profile-copy p { font-size: 13px; }
+  .account-stats { gap: 8px; }
+  .account-view .account-stat { padding: 14px; }
+  .account-stat strong { font-size: 25px; }
+  .settings-heading { align-items: flex-start; flex-direction: column; gap: 9px; }
+  .settings-heading > small { max-width: none; text-align: left; }
+  .theme-inline { width: 100%; justify-content: space-between; }
+}
+
 /* Profile personalization */
 .account-profile-row,
 .profile-dialog-name {
