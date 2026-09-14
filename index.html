@@ -1,11 +1,352 @@
-<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#171813"><title>UN Charta · Lernstudio</title><link rel="stylesheet" href="styles.css"></head><body>
-<a class="skip" href="#content">До вмісту</a><main class="shell" id="content">
-<header class="hero"><div class="eyebrow">Мова фаху · UN Charta</div><div class="hero-top"><h1>Lernstudio</h1><div class="top-actions"><nav class="tabs" aria-label="Режими навчання"><button class="tab active" data-view="tracker">Трекер</button><button class="tab" data-view="cards">Картки</button><button class="tab" data-view="review">Повторення <span id="reviewBadge">0</span></button></nav><button id="authBtn" class="auth-btn">Увійти</button></div></div><div class="deadline-grid"><section class="countdown-panel" aria-label="Час до дедлайну"><div class="section-label">Дедлайн · 12 жовтня 2026</div><div class="countdown"><div><strong id="days">00</strong><span>днів</span></div><div><strong id="hours">00</strong><span>годин</span></div><div><strong id="minutes">00</strong><span>хвилин</span></div><div><strong id="seconds">00</strong><span>секунд</span></div></div></section><section class="pace green" id="pace" aria-live="polite"><span id="paceStatus">Темп нормальний</span><strong><b id="dailyGoal">2</b> / день</strong><small>щоб встигнути до дедлайну</small></section></div></header>
-<div class="sync-banner" id="syncBanner"><span id="syncText">Прогрес зберігається в цьому браузері</span><button id="syncAction">Увійти для хмарного збереження</button></div>
-<section class="view active" id="trackerView"><div class="metrics"><article class="metric"><span class="metric-label">Вивчено</span><strong><b id="doneCount">0</b> / 39</strong><div class="bar"><i id="progressBar"></i></div></article><article class="metric"><span class="metric-label">Серія</span><strong><b id="streak">0</b> днів</strong><small>навчання поспіль</small></article><article class="metric"><span class="metric-label">Прогноз</span><strong id="forecast">—</strong><small>завершення всіх статей</small></article></div><section class="today"><div><span class="section-label">План на сьогодні</span><h2 id="todayTitle">2 статті</h2></div><div class="today-list" id="todayList"></div><button class="ink-btn" id="startToday">Почати картки →</button></section><section class="toolbar"><input id="search" type="search" placeholder="Знайти статтю" aria-label="Знайти статтю"><div class="filter-row"><button class="filter active" data-filter="all">Усі</button><button class="filter" data-filter="todo">Ще вчу</button><button class="filter" data-filter="learned">Вивчені</button><button class="filter" data-filter="easy">Легкі</button><button class="filter" data-filter="medium">Середні</button><button class="filter" data-filter="hard">Складні</button><button class="filter" data-filter="review">Повторити</button></div><button id="resetBtn" class="quiet">Скинути</button></section><section class="article-grid" id="articleGrid"></section><p class="empty" id="empty">За цим запитом нічого не знайдено.</p></section>
-<section class="view" id="cardsView"><div class="study-head"><div><span class="section-label">39 повних статей</span><h2>Картки</h2></div><div class="study-tools"><button id="shuffleBtn">⇄ Перемішати</button><span id="cardCounter">1 / 39</span></div></div><div class="flashcard-wrap"><button class="arrow" id="prevCard" aria-label="Попередня картка">←</button><button class="flashcard-scene" id="flashcard" aria-label="Перевернути картку"><span class="flashcard-inner"><span class="flash-face flash-front"><span class="card-side">Українська</span><span class="card-copy" id="cardUk">Завантаження…</span><span class="flip-hint">Натисніть, щоб перевернути</span></span><span class="flash-face flash-back"><span class="card-side">Deutsch</span><span class="card-copy" id="cardDe"></span><span class="flip-hint">Натисніть, щоб перевернути</span></span></span></button><button class="arrow" id="nextCard" aria-label="Наступна картка">→</button></div><div class="difficulty-actions" aria-label="Складність"><button data-level="easy">Легка</button><button data-level="medium">Середня</button><button data-level="hard">Складна</button></div><div class="study-actions"><button class="review-btn" id="cardReview">Повторити</button><button class="learn-btn" id="cardLearned">Знаю ✓</button></div><p class="keyboard">Клавіші: ← → навігація · пробіл перевернути</p></section>
-<section class="view" id="reviewView"><div class="study-head"><div><span class="section-label">Закріплення матеріалу</span><h2>Повторення</h2></div><button id="reviewAll">Повторити всі вивчені</button></div><div id="reviewEmpty" class="review-empty"><strong>Черга порожня</strong><span>Позначте статтю «Повторити» або спочатку вивчіть її.</span></div><div id="reviewSession" hidden><div class="flashcard-wrap review-wrap"><button class="flashcard-scene" id="reviewCard"><span class="flashcard-inner"><span class="flash-face flash-front"><span class="card-side">Українська</span><span class="card-copy" id="reviewUk"></span><span class="flip-hint">Натисніть, щоб перевернути</span></span><span class="flash-face flash-back"><span class="card-side">Deutsch</span><span class="card-copy" id="reviewDe"></span><span class="flip-hint">Натисніть, щоб перевернути</span></span></span></button></div><div class="study-actions"><button class="hard-btn" id="reviewAgain">Ще раз</button><button class="learn-btn" id="reviewKnown">Пам’ятаю ✓</button></div><p class="keyboard" id="reviewCounter"></p></div></section>
-<footer>Увійдіть, щоб прогрес зберігався в хмарі та синхронізувався між пристроями.</footer></main>
-<dialog id="noteDialog"><form method="dialog"><div class="dialog-head"><div><span class="section-label">Особиста нотатка</span><h2 id="noteTitle">Стаття</h2></div><button value="cancel" aria-label="Закрити">×</button></div><textarea id="noteText" placeholder="Мнемоніка, складні слова або власне пояснення…"></textarea><div class="dialog-actions"><button value="cancel">Скасувати</button><button value="save" class="ink-btn">Зберегти</button></div></form></dialog>
-<dialog id="authDialog"><form id="authForm"><div class="dialog-head"><div><span class="section-label">Хмарне збереження</span><h2 id="authTitle">Увійти</h2></div><button type="button" id="closeAuth" aria-label="Закрити">×</button></div><div class="auth-body"><label>Email<input id="authEmail" type="email" autocomplete="email" required></label><label>Пароль<input id="authPassword" type="password" autocomplete="current-password" minlength="8" required></label><p id="authMessage" aria-live="polite"></p><button class="ink-btn" id="authSubmit" type="submit">Увійти</button><button type="button" id="authMode">Немає акаунта? Зареєструватися</button><button type="button" id="signOutBtn" class="danger" hidden>Вийти з акаунта</button></div></form></dialog>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js" integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp" crossorigin="anonymous"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#171813" />
+    <title>UN Charta · Lernstudio</title>
+    <script>
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem("un-charta-theme-v1") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+      } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#content">До вмісту</a>
+    <main class="shell" id="content">
+      <header class="hero">
+        <div class="eyebrow">Мова фаху · UN Charta</div>
+        <div class="hero-top">
+          <h1>
+            <button
+              id="homeBtn"
+              class="home-title"
+              type="button"
+              aria-label="На головну зі всіма статтями"
+            >
+              Lernstudio
+            </button>
+          </h1>
+          <div class="top-actions">
+            <nav class="tabs" aria-label="Режими навчання">
+              <button class="tab active" data-view="tracker">Трекер</button
+              ><button class="tab" data-view="cards">Картки</button
+              ><button class="tab" data-view="review">
+                Повторення <span id="reviewBadge">0</span></button
+              ><button class="tab" data-view="account">Акаунт</button>
+            </nav>
+            <button
+              id="themeBtn"
+              class="theme-btn"
+              aria-label="Змінити тему"
+              title="Змінити тему"
+            >
+              ◐</button
+            ><button id="authBtn" class="auth-btn">Увійти</button>
+          </div>
+        </div>
+        <div class="deadline-grid">
+          <section class="countdown-panel" aria-label="Час до дедлайну">
+            <div class="section-label">Дедлайн · 12 жовтня 2026</div>
+            <div class="countdown">
+              <div><strong id="days">00</strong><span>днів</span></div>
+              <div><strong id="hours">00</strong><span>годин</span></div>
+              <div><strong id="minutes">00</strong><span>хвилин</span></div>
+              <div><strong id="seconds">00</strong><span>секунд</span></div>
+            </div>
+          </section>
+          <section class="pace green" id="pace" aria-live="polite">
+            <span id="paceStatus">Темп нормальний</span
+            ><strong><b id="dailyGoal">2</b> / день</strong
+            ><small>щоб встигнути до дедлайну</small>
+          </section>
+        </div>
+      </header>
+      <section class="view active" id="trackerView">
+        <div class="metrics">
+          <article class="metric">
+            <span class="metric-label">Вивчено</span
+            ><strong><b id="doneCount">0</b> / 39</strong>
+            <div class="bar"><i id="progressBar"></i></div>
+          </article>
+          <article class="metric">
+            <span class="metric-label">Серія</span
+            ><strong><b id="streak">0</b> днів</strong
+            ><small>навчання поспіль</small>
+          </article>
+          <article class="metric">
+            <span class="metric-label">Прогноз</span
+            ><strong id="forecast">—</strong
+            ><small>завершення всіх статей</small>
+          </article>
+        </div>
+        <section class="today">
+          <div>
+            <span class="section-label">План на сьогодні</span>
+            <h2 id="todayTitle">2 статті</h2>
+          </div>
+          <div class="today-list" id="todayList"></div>
+          <button class="ink-btn" id="startToday">Почати картки →</button>
+        </section>
+        <section class="toolbar">
+          <input
+            id="search"
+            type="search"
+            placeholder="Знайти статтю"
+            aria-label="Знайти статтю"
+          /><button id="resetBtn" class="quiet">Скинути</button>
+        </section>
+        <section class="article-grid" id="articleGrid"></section>
+        <p class="empty" id="empty">За цим запитом нічого не знайдено.</p>
+      </section>
+      <section class="view" id="cardsView">
+        <div class="study-head">
+          <div>
+            <span class="section-label">39 повних статей</span>
+            <h2>Картки</h2>
+          </div>
+          <div class="study-tools">
+            <button id="shuffleBtn">⇄ Перемішати</button
+            ><span id="cardCounter">1 / 39</span>
+          </div>
+        </div>
+        <div class="flashcard-wrap">
+          <button class="arrow" id="prevCard" aria-label="Попередня картка">
+            ←</button
+          ><button
+            class="flashcard-scene"
+            id="flashcard"
+            aria-label="Перевернути картку"
+          >
+            <span class="flashcard-inner"
+              ><span class="flash-face flash-front"
+                ><span class="card-side">Українська</span
+                ><span class="card-copy" id="cardUk">Завантаження…</span
+                ><span class="flip-hint">Натисніть, щоб перевернути</span></span
+              ><span class="flash-face flash-back"
+                ><span class="card-side">Deutsch</span
+                ><span class="card-copy" id="cardDe"></span
+                ><span class="flip-hint">Натисніть, щоб перевернути</span></span
+              ></span
+            ></button
+          ><button class="arrow" id="nextCard" aria-label="Наступна картка">
+            →
+          </button>
+        </div>
+        <div class="difficulty-actions">
+          <button data-level="hard">Позначити як складну</button>
+        </div>
+        <div class="study-actions">
+          <button class="review-btn" id="cardReview">Повторити</button
+          ><button class="learn-btn" id="cardLearned">Знаю ✓</button>
+        </div>
+        <p class="keyboard">Клавіші: ← → навігація · пробіл перевернути</p>
+      </section>
+      <section class="view" id="reviewView">
+        <div class="study-head">
+          <div>
+            <span class="section-label">Закріплення матеріалу</span>
+            <h2>Повторення</h2>
+          </div>
+          <button id="reviewAll">Повторити всі вивчені</button>
+        </div>
+        <div id="reviewEmpty" class="review-empty">
+          <strong>Черга порожня</strong
+          ><span>Позначте статтю «Повторити» або спочатку вивчіть її.</span>
+        </div>
+        <div id="reviewSession" hidden>
+          <div class="flashcard-wrap review-wrap">
+            <button class="flashcard-scene" id="reviewCard">
+              <span class="flashcard-inner"
+                ><span class="flash-face flash-front"
+                  ><span class="card-side">Українська</span
+                  ><span class="card-copy" id="reviewUk"></span
+                  ><span class="flip-hint"
+                    >Натисніть, щоб перевернути</span
+                  ></span
+                ><span class="flash-face flash-back"
+                  ><span class="card-side">Deutsch</span
+                  ><span class="card-copy" id="reviewDe"></span
+                  ><span class="flip-hint"
+                    >Натисніть, щоб перевернути</span
+                  ></span
+                ></span
+              >
+            </button>
+          </div>
+          <div class="study-actions">
+            <button class="hard-btn" id="reviewAgain">Ще раз</button
+            ><button class="learn-btn" id="reviewKnown">Пам’ятаю ✓</button>
+          </div>
+          <p class="keyboard" id="reviewCounter"></p>
+        </div>
+      </section>
+      <section class="view account-view" id="accountView">
+        <div class="account-heading">
+          <span class="section-label">Профіль і прогрес</span>
+          <h2>Акаунт</h2>
+          <p id="accountLead">Увійдіть, щоб зберігати навчання у хмарі.</p>
+        </div>
+        <div class="account-grid">
+          <article class="account-card account-identity">
+            <span class="metric-label">Профіль</span>
+            <strong id="accountEmail">Гостьовий режим</strong>
+            <small id="accountSync"
+              >Прогрес зберігається лише на цьому пристрої</small
+            >
+            <button class="ink-btn" id="accountAuth">
+              Увійти або зареєструватися
+            </button>
+          </article>
+          <article class="account-card">
+            <span class="metric-label">Вивчено</span
+            ><strong><b id="accountLearned">0</b> / 39</strong
+            ><small>статей завершено</small>
+          </article>
+          <article class="account-card">
+            <span class="metric-label">Складні</span
+            ><strong id="accountHard">0</strong
+            ><small>позначено для уваги</small>
+          </article>
+          <article class="account-card">
+            <span class="metric-label">Серія</span
+            ><strong><b id="accountStreak">0</b> днів</strong
+            ><small>навчання поспіль</small>
+          </article>
+          <article class="account-card">
+            <span class="metric-label">Повторення</span
+            ><strong id="accountReview">0</strong><small>статей у черзі</small>
+          </article>
+          <article class="account-card theme-card">
+            <span class="metric-label">Оформлення</span
+            ><strong id="accountThemeName">Світла тема</strong
+            ><button id="accountTheme">Змінити тему</button>
+          </article>
+        </div>
+        <section class="leaderboard">
+          <div class="leaderboard-head">
+            <div>
+              <span class="section-label">Рейтинг групи</span>
+              <h3>Хто скільки пройшов</h3>
+            </div>
+            <span id="memberCount">0 учасників</span>
+          </div>
+          <div id="leaderboardList" class="leaderboard-list">
+            <p>Увійдіть, щоб побачити рейтинг групи.</p>
+          </div>
+        </section>
+      </section>
+      <footer>
+        Увійдіть, щоб прогрес зберігався в хмарі та синхронізувався між
+        пристроями.
+      </footer>
+    </main>
+    <nav class="bottom-nav" aria-label="Основна навігація">
+      <button class="active" data-bottom-view="tracker">
+        <span>▦</span>Усі статті
+      </button>
+      <button data-bottom-view="cards"><span>▣</span>Картка</button>
+      <button data-bottom-view="account"><span>●</span>Акаунт</button>
+    </nav>
+    <dialog id="noteDialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div>
+            <span class="section-label">Особиста нотатка</span>
+            <h2 id="noteTitle">Стаття</h2>
+          </div>
+          <button value="cancel" aria-label="Закрити">×</button>
+        </div>
+        <textarea
+          id="noteText"
+          placeholder="Мнемоніка, складні слова або власне пояснення…"
+        ></textarea>
+        <div class="dialog-actions">
+          <button value="cancel">Скасувати</button
+          ><button value="save" class="ink-btn">Зберегти</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="authDialog">
+      <form id="authForm">
+        <div class="dialog-head">
+          <div>
+            <span class="section-label">Ваш прогрес усюди</span>
+            <h2 id="authTitle">Увійти</h2>
+          </div>
+          <button type="button" id="closeAuth" aria-label="Закрити">×</button>
+        </div>
+        <div class="auth-body">
+          <p class="auth-intro" id="authIntro">
+            Увійдіть, щоб статті, складність і нотатки не загубилися та
+            відкривалися на будь-якому пристрої.
+          </p>
+          <label id="nameField" hidden
+            >Ваше ім’я<input
+              id="authName"
+              type="text"
+              autocomplete="name"
+              minlength="2"
+              maxlength="40"
+              placeholder="Як вас бачитиме група"
+          /></label>
+          <label
+            >Email<input
+              id="authEmail"
+              type="email"
+              autocomplete="email"
+              required /></label
+          ><label
+            >Пароль<input
+              id="authPassword"
+              type="password"
+              autocomplete="current-password"
+              minlength="8"
+              required
+          /></label>
+          <p id="authMessage" aria-live="polite"></p>
+          <button class="ink-btn" id="authSubmit" type="submit">Увійти</button>
+          <div class="auth-switch" id="authSwitch">
+            <span id="authSwitchText">Вперше тут?</span
+            ><button type="button" id="authMode">Створити акаунт</button>
+          </div>
+          <button type="button" id="signOutBtn" class="danger" hidden>
+            Вийти з акаунта
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="profileDialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div>
+            <span class="section-label">Учасник групи</span>
+            <h2 id="profileName">Профіль</h2>
+          </div>
+          <button value="cancel" aria-label="Закрити">×</button>
+        </div>
+        <div class="profile-stats">
+          <div><span>Місце</span><strong id="profileRank">—</strong></div>
+          <div>
+            <span>Вивчено</span><strong id="profileLearned">0 / 39</strong>
+          </div>
+          <div><span>Складні</span><strong id="profileHard">0</strong></div>
+          <div>
+            <span>Серія</span><strong id="profileStreak">0 днів</strong>
+          </div>
+        </div>
+      </form>
+    </dialog>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js"
+      integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
+      crossorigin="anonymous"
+    ></script>
+    <script src="app.js"></script>
+  </body>
+</html>
