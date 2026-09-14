@@ -947,7 +947,7 @@ async function settleVocabularyDrag() {
   try { await Promise.all([cardAnimation.finished, tintAnimation.finished]); } catch {}
   vocabSwipeAnimating = false;
 }
-async function animateVocabularyDecision(step) {
+async function animateVocabularyDecision(step, fast = false) {
   if (vocabSwipeAnimating) return;
   const card = $("#vocabCard");
   const tint = card.querySelector(".vocab-swipe-tint");
@@ -968,11 +968,11 @@ async function animateVocabularyDecision(step) {
       { transform: from, opacity: 1 },
       { transform: `translateX(${direction * 118}%) rotate(${direction * 9}deg)`, opacity: 0.18 },
     ],
-    { duration: 220, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "forwards" },
+    { duration: fast ? 135 : 220, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "forwards" },
   );
   const tintExit = tint.animate(
     [{ opacity: Number(tint.style.opacity || 0.2) }, { opacity: 0.72 }],
-    { duration: 150, easing: "ease-out", fill: "forwards" },
+    { duration: fast ? 90 : 150, easing: "ease-out", fill: "forwards" },
   );
   try { await exit.finished; } catch {}
   moveVocabulary(step, false);
@@ -984,7 +984,7 @@ async function animateVocabularyDecision(step) {
       { transform: `translateX(${-direction * 28}px)`, opacity: 0 },
       { transform: "translateX(0)", opacity: 1 },
     ],
-    { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+    { duration: fast ? 105 : 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
   );
   try { await enter.finished; } catch {}
   vocabSwipeAnimating = false;
@@ -1314,10 +1314,10 @@ $("#vocabCard").addEventListener("pointercancel", () => {
   if (vocabLearnMode) settleVocabularyDrag();
 });
 $("#vocabPrev").addEventListener("click", () =>
-  vocabLearnMode ? animateVocabularyDecision(-1) : moveVocabulary(-1),
+  vocabLearnMode ? animateVocabularyDecision(-1, true) : moveVocabulary(-1),
 );
 $("#vocabNext").addEventListener("click", () =>
-  vocabLearnMode ? animateVocabularyDecision(1) : moveVocabulary(1),
+  vocabLearnMode ? animateVocabularyDecision(1, true) : moveVocabulary(1),
 );
 $("#vocabUndo").addEventListener("click", undoVocabularyDecision);
 $("#vocabLearnMode").addEventListener("change", (event) => {
@@ -1592,9 +1592,9 @@ document.addEventListener("keydown", (e) => {
     if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(e.key))
       e.preventDefault();
     if (e.key === "ArrowLeft")
-      vocabLearnMode ? animateVocabularyDecision(-1) : moveVocabulary(-1);
+      vocabLearnMode ? animateVocabularyDecision(-1, true) : moveVocabulary(-1);
     if (e.key === "ArrowRight")
-      vocabLearnMode ? animateVocabularyDecision(1) : moveVocabulary(1);
+      vocabLearnMode ? animateVocabularyDecision(1, true) : moveVocabulary(1);
     if (e.key === "ArrowUp") flipVocabulary(-1);
     if (e.key === "ArrowDown" || e.code === "Space") flipVocabulary(1);
     return;
