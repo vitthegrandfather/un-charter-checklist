@@ -2055,7 +2055,8 @@ button {
 .achievement-progress { height: 8px; margin: 18px 0 22px; overflow: hidden; border-radius: 99px; background: color-mix(in srgb, var(--ink) 10%, transparent); }
 .achievement-progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--green); transition: width .55s cubic-bezier(.2,.8,.2,1); }
 .achievement-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
-.achievement { min-width: 0; display: flex; align-items: center; gap: 11px; padding: 12px; border: 1px solid color-mix(in srgb, var(--line) 65%, transparent); border-radius: 12px; opacity: .48; background: color-mix(in srgb, var(--ink) 2%, transparent); }
+.achievement { min-width: 0; min-height: 0; display: flex; align-items: center; gap: 11px; padding: 12px; border: 1px solid color-mix(in srgb, var(--line) 65%, transparent); border-radius: 12px; opacity: .48; background: color-mix(in srgb, var(--ink) 2%, transparent); color: var(--ink); text-align: left; transform: none; }
+.achievement:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); }
 .achievement > span { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--ink) 8%, transparent); font: 700 16px/1 Arial, sans-serif; filter: grayscale(1); }
 .achievement div { min-width: 0; display: grid; gap: 4px; }
 .achievement strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
@@ -2075,6 +2076,17 @@ button {
 .achievement-toast > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: #fff; font: 800 17px/1 Arial, sans-serif; }
 .achievement-toast div { display: grid; gap: 3px; }
 .achievement-toast small { color: var(--muted); }
+.achievement-dialog { width: min(440px, calc(100% - 28px)); border: 1px solid var(--line); border-radius: 18px; background: var(--card); color: var(--ink); box-shadow: 0 24px 80px rgba(0,0,0,.28); }
+.achievement-dialog::backdrop { background: rgba(8, 12, 18, .58); backdrop-filter: blur(5px); }
+.achievement-dialog form { position: relative; display: grid; justify-items: center; gap: 10px; padding: 34px 28px 28px; text-align: center; }
+.achievement-dialog-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; min-height: 0; padding: 0; border: 0; border-radius: 50%; background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink); font-size: 22px; transform: none; }
+.achievement-dialog-icon { width: 76px; height: 76px; display: grid; place-items: center; margin-bottom: 6px; border-radius: 50%; background: color-mix(in srgb, var(--ink) 9%, transparent); color: var(--muted); font: 800 24px/1 Arial, sans-serif; }
+.achievement-dialog.unlocked .achievement-dialog-icon { background: var(--green); color: #fff; box-shadow: 0 10px 28px color-mix(in srgb, var(--green) 30%, transparent); }
+.achievement-dialog h2 { margin: 2px 0 0; font-size: clamp(28px, 7vw, 38px); letter-spacing: -.035em; }
+.achievement-dialog p { margin: 0; color: var(--muted); font-size: 16px; }
+.achievement-dialog-progress { width: 100%; height: 7px; margin-top: 12px; overflow: hidden; border-radius: 99px; background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.achievement-dialog-progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--green); transition: width .4s ease; }
+.achievement-dialog > form > strong { margin-top: 2px; font-size: 13px; }
 .settings-heading {
   display: flex;
   align-items: flex-end;

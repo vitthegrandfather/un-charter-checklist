@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=48" />
+    <link rel="stylesheet" href="styles.css?v=49" />
   </head>
   <body class="tracker-open">
     <a class="skip" href="#content">До вмісту</a>
@@ -440,6 +440,17 @@
     <div class="achievement-toast" id="achievementToast" role="status" aria-live="polite" hidden>
       <span id="achievementToastIcon"></span><div><small>Нове досягнення</small><strong id="achievementToastName"></strong></div>
     </div>
+    <dialog id="achievementDialog" class="achievement-dialog">
+      <form method="dialog">
+        <button class="achievement-dialog-close" value="cancel" aria-label="Закрити">×</button>
+        <span class="achievement-dialog-icon" id="achievementDialogIcon" aria-hidden="true"></span>
+        <span class="section-label" id="achievementDialogStatus">Досягнення</span>
+        <h2 id="achievementDialogName"></h2>
+        <p id="achievementDialogDescription"></p>
+        <div class="achievement-dialog-progress"><i id="achievementDialogProgress"></i></div>
+        <strong id="achievementDialogCounter"></strong>
+      </form>
+    </dialog>
     <dialog id="avatarDialog" class="avatar-dialog">
       <form method="dialog">
         <div class="dialog-head">
@@ -479,6 +490,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=51"></script>
+    <script src="app.js?v=52"></script>
   </body>
 </html>

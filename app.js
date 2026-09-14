@@ -660,7 +660,7 @@ function renderAccount() {
   $("#achievementGrid").innerHTML = ACHIEVEMENTS.map((item) => {
     const value = achievements.stats[item.metric];
     const unlocked = value >= item.goal;
-    return `<article class="achievement${unlocked ? " unlocked" : ""}" title="${safe(item.description)}"><span>${safe(item.icon)}</span><div><strong>${safe(item.name)}</strong><small>${unlocked ? "Отримано" : `${Math.min(value, item.goal)} / ${item.goal}`}</small></div></article>`;
+    return `<button type="button" class="achievement${unlocked ? " unlocked" : ""}" data-achievement="${safe(item.id)}" aria-label="${safe(item.name)}. ${safe(item.description)}"><span>${safe(item.icon)}</span><div><strong>${safe(item.name)}</strong><small>${unlocked ? "Отримано" : `${Math.min(value, item.goal)} / ${item.goal}`}</small></div></button>`;
   }).join("");
   announceNewAchievements(achievements.unlocked);
   $("#accountThemeName").textContent =
@@ -1330,6 +1330,23 @@ $("#leaderboardList").addEventListener("click", (e) => {
   $("#profileLevel").textContent = `${publicAchievements.level} · ${publicAchievements.title}`;
   $("#profileBadges").innerHTML = badgeMarkup(publicAchievements, 5);
   $("#profileDialog").showModal();
+});
+$("#achievementGrid").addEventListener("click", (e) => {
+  const button = e.target.closest("[data-achievement]");
+  if (!button) return;
+  const item = ACHIEVEMENTS.find((achievement) => achievement.id === button.dataset.achievement);
+  if (!item) return;
+  const value = achievementStats()[item.metric];
+  const current = Math.min(value, item.goal);
+  const unlocked = value >= item.goal;
+  $("#achievementDialogIcon").textContent = item.icon;
+  $("#achievementDialogStatus").textContent = unlocked ? "Досягнення отримано" : "Ще не відкрито";
+  $("#achievementDialogName").textContent = item.name;
+  $("#achievementDialogDescription").textContent = item.description;
+  $("#achievementDialogCounter").textContent = unlocked ? "Виконано ✓" : `${current} з ${item.goal}`;
+  $("#achievementDialogProgress").style.width = `${(current / item.goal) * 100}%`;
+  $("#achievementDialog").classList.toggle("unlocked", unlocked);
+  $("#achievementDialog").showModal();
 });
 $("#search").addEventListener("input", renderArticles);
 $("#filterRow").addEventListener("click", (e) => {
