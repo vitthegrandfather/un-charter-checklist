@@ -103,6 +103,7 @@ let cards = [],
   vocabPointerStart = null,
   vocabSwipeHandled = false,
   vocabSwipeAnimating = false,
+  vocabUndoStack = [],
   uiRestored = false;
 const has = (k, n) => state[k].includes(n),
   todayKey = () => {
@@ -829,7 +830,17 @@ function renderVocabulary() {
     shuffled ? "Вимкнути перемішування" : "Перемішати",
   );
   $("#vocabCounter").textContent = `${vocabIndex + 1} / ${vocabOrder.length}`;
-  $("#vocabPrev").disabled = !vocabLearnMode && vocabIndex === 0;
+  $("#vocabPrev").disabled = vocabLearnMode
+    ? vocabUndoStack.length === 0
+    : vocabIndex === 0;
+  $("#vocabPrev").classList.toggle("is-undo", vocabLearnMode);
+  $("#vocabPrev").setAttribute(
+    "aria-label",
+    vocabLearnMode ? "Скасувати останній свайп" : "Попереднє слово",
+  );
+  $("#vocabPrev").title = vocabLearnMode
+    ? "Скасувати останній свайп"
+    : "Попереднє слово";
   $("#vocabNext").disabled = !vocabLearnMode && vocabIndex === vocabOrder.length - 1;
   renderVocabularyList();
   persistUiState();
@@ -846,6 +857,13 @@ function renderVocabularyList() {
     .join("");
 }
 function moveVocabulary(step, animate = true) {
+  const previousDecision = vocabLearnMode
+    ? {
+        id: currentVocab().id,
+        index: vocabIndex,
+        wasLearned: state.vocabLearned.includes(currentVocab().id),
+      }
+    : null;
   let learningChanged = false;
   if (vocabLearnMode) {
     const id = currentVocab().id;
@@ -862,6 +880,10 @@ function moveVocabulary(step, animate = true) {
   const nextStep = vocabLearnMode ? 1 : step;
   const next = Math.max(0, Math.min(vocabIndex + nextStep, vocabOrder.length - 1));
   if (next === vocabIndex && !learningChanged) return;
+  if (previousDecision) {
+    vocabUndoStack.push(previousDecision);
+    if (vocabUndoStack.length > 50) vocabUndoStack.shift();
+  }
   const inner = $("#vocabCard .vocab-card-inner");
   const resetFace = vocabFlipped;
   if (resetFace) inner.style.transition = "none";
@@ -875,6 +897,27 @@ function moveVocabulary(step, animate = true) {
     inner.style.removeProperty("transition");
   }
   if (animate) animateStudyCard($("#vocabCard"), step);
+}
+function undoVocabularyDecision() {
+  if (vocabSwipeAnimating || !vocabUndoStack.length) return;
+  const previous = vocabUndoStack.pop();
+  if (previous.wasLearned && !state.vocabLearned.includes(previous.id))
+    state.vocabLearned.push(previous.id);
+  if (!previous.wasLearned)
+    state.vocabLearned = state.vocabLearned.filter((id) => id !== previous.id);
+  vocabIndex = Math.max(0, Math.min(previous.index, vocabOrder.length - 1));
+  vocabFlipped = false;
+  vocabRotation = 0;
+  save();
+  const card = $("#vocabCard");
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+    card.animate(
+      [
+        { transform: "translateX(-24px)", opacity: 0.35 },
+        { transform: "translateX(0)", opacity: 1 },
+      ],
+      { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+    );
 }
 function clearVocabularyDrag() {
   const card = $("#vocabCard");
@@ -1201,6 +1244,7 @@ $("#vocabList").addEventListener("click", (e) => {
   const id = +row.dataset.vocabId;
   vocabOrder = vocabulary.map((word) => word.id);
   vocabIndex = vocabOrder.indexOf(id);
+  vocabUndoStack = [];
   vocabFlipped = false;
   vocabRotation = 0;
   renderVocabulary();
@@ -1266,10 +1310,13 @@ $("#vocabCard").addEventListener("pointercancel", () => {
   vocabPointerStart = null;
   if (vocabLearnMode) settleVocabularyDrag();
 });
-$("#vocabPrev").addEventListener("click", () => moveVocabulary(-1));
+$("#vocabPrev").addEventListener("click", () =>
+  vocabLearnMode ? undoVocabularyDecision() : moveVocabulary(-1),
+);
 $("#vocabNext").addEventListener("click", () => moveVocabulary(1));
 $("#vocabLearnMode").addEventListener("change", (event) => {
   vocabLearnMode = event.target.checked;
+  vocabUndoStack = [];
   renderVocabulary();
 });
 $("#vocabShuffle").addEventListener("click", () => {
