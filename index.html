@@ -14,7 +14,7 @@
             : "light");
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=30" />
+    <link rel="stylesheet" href="styles.css?v=31" />
   </head>
   <body class="tracker-open">
     <a class="skip" href="#content">До вмісту</a>
@@ -245,7 +245,7 @@
           <article class="account-card account-identity">
             <span class="metric-label">Профіль</span>
             <div class="account-profile-row">
-              <span class="profile-avatar" id="accountAvatar" aria-hidden="true">👤</span>
+              <span class="profile-avatar" id="accountAvatar" aria-hidden="true"></span>
               <div class="account-name-row">
                 <strong id="accountEmail">Гостьовий режим</strong>
                 <button
@@ -296,14 +296,30 @@
             <div class="personalization-section">
               <strong>Аватарка</strong>
               <div class="avatar-picker" id="avatarPicker" aria-label="Виберіть аватарку">
-                <button data-avatar="🦊" aria-label="Лисиця">🦊</button>
-                <button data-avatar="🐼" aria-label="Панда">🐼</button>
-                <button data-avatar="🐸" aria-label="Жабка">🐸</button>
-                <button data-avatar="🐯" aria-label="Тигр">🐯</button>
-                <button data-avatar="🐙" aria-label="Восьминіг">🐙</button>
-                <button data-avatar="🐧" aria-label="Пінгвін">🐧</button>
-                <button data-avatar="🐝" aria-label="Бджола">🐝</button>
-                <button data-avatar="🦉" aria-label="Сова">🦉</button>
+                <button data-avatar="avatar-01" aria-label="Крокодил-опера"><span class="avatar-art avatar-01"></span></button>
+                <button data-avatar="avatar-02" aria-label="Професор-мока"><span class="avatar-art avatar-02"></span></button>
+                <button data-avatar="avatar-03" aria-label="Банан-детектив"><span class="avatar-art avatar-03"></span></button>
+                <button data-avatar="avatar-04" aria-label="Капібара-гондольєр"><span class="avatar-art avatar-04"></span></button>
+                <button data-avatar="avatar-05" aria-label="Равіолі-лицар"><span class="avatar-art avatar-05"></span></button>
+                <button data-avatar="avatar-06" aria-label="Бабуся-восьминіг"><span class="avatar-art avatar-06"></span></button>
+                <button data-avatar="avatar-07" aria-label="Еспресо-атлет"><span class="avatar-art avatar-07"></span></button>
+                <button data-avatar="avatar-08" aria-label="Єнот-кухар"><span class="avatar-art avatar-08"></span></button>
+                <button data-avatar="avatar-09" aria-label="Фламінго-бухгалтер"><span class="avatar-art avatar-09"></span></button>
+                <button data-avatar="avatar-10" aria-label="Акула-аристократ"><span class="avatar-art avatar-10"></span></button>
+                <button data-avatar="avatar-11" aria-label="Альпака-балерина"><span class="avatar-art avatar-11"></span></button>
+                <button data-avatar="avatar-12" aria-label="Лимон-мафіозі"><span class="avatar-art avatar-12"></span></button>
+                <button data-avatar="avatar-13" aria-label="Жаба-космонавт"><span class="avatar-art avatar-13"></span></button>
+                <button data-avatar="avatar-14" aria-label="Такса-легіонер"><span class="avatar-art avatar-14"></span></button>
+                <button data-avatar="avatar-15" aria-label="Гусак-фокусник"><span class="avatar-art avatar-15"></span></button>
+                <button data-avatar="avatar-16" aria-label="Горила-скрипаль"><span class="avatar-art avatar-16"></span></button>
+                <button data-avatar="avatar-17" aria-label="Креветка-суддя"><span class="avatar-art avatar-17"></span></button>
+                <button data-avatar="avatar-18" aria-label="Кішка-імператриця"><span class="avatar-art avatar-18"></span></button>
+                <button data-avatar="avatar-19" aria-label="Корова-поет"><span class="avatar-art avatar-19"></span></button>
+                <button data-avatar="avatar-20" aria-label="Миша-пілот"><span class="avatar-art avatar-20"></span></button>
+                <label class="avatar-upload" for="avatarUpload" aria-label="Додати власну аватарку">
+                  <span aria-hidden="true">＋</span><b>Своє фото</b>
+                </label>
+                <input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden />
               </div>
             </div>
             <div class="personalization-section">
@@ -418,7 +434,7 @@
         <div class="dialog-head">
           <div>
             <span class="section-label">Учасник групи</span>
-            <div class="profile-dialog-name"><span class="profile-avatar" id="profileAvatar" aria-hidden="true">👤</span><h2 id="profileName">Профіль</h2></div>
+            <div class="profile-dialog-name"><span class="profile-avatar" id="profileAvatar" aria-hidden="true"></span><h2 id="profileName">Профіль</h2></div>
           </div>
           <button value="cancel" aria-label="Закрити">×</button>
         </div>
@@ -439,6 +455,6 @@
       integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp"
       crossorigin="anonymous"
     ></script>
-    <script src="app.js?v=31"></script>
+    <script src="app.js?v=32"></script>
   </body>
 </html>

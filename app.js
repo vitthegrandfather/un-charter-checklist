@@ -12,6 +12,7 @@ const OLD_KEY = "un-charta-progress-v1",
   REVIEW_DAYS = 4;
 const SUPABASE_URL = "https://xwdxfbgazlplyiglzecm.supabase.co",
   SUPABASE_KEY = "sb_publishable_yNV81pVLwznAKRN2fH3PBQ_ptbNVmFh";
+const AVATARS = Array.from({ length: 20 }, (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`);
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const blankState = () => ({
@@ -26,7 +27,8 @@ const blankState = () => ({
   studyDates: [],
   dailyPlans: {},
   vocabLearned: [],
-  profileAvatar: "🦊",
+  profileAvatar: "avatar-03",
+  customAvatar: "",
   cardStyle: "classic",
 });
 function normalize(raw = {}) {
@@ -41,9 +43,12 @@ function normalize(raw = {}) {
   s.hard.forEach((n) => {
     if (!s.difficulty[n]) s.difficulty[n] = "hard";
   });
-  const avatars = ["🦊", "🐼", "🐸", "🐯", "🐙", "🐧", "🐝", "🦉"];
   const cardStyles = ["classic", "sage", "sky", "lilac"];
-  if (!avatars.includes(s.profileAvatar)) s.profileAvatar = "🦊";
+  const legacyAvatars = { "🦊": "avatar-03", "🐼": "avatar-08", "🐸": "avatar-13", "🐯": "avatar-14", "🐙": "avatar-06", "🐧": "avatar-02", "🐝": "avatar-09", "🦉": "avatar-18" };
+  s.profileAvatar = legacyAvatars[s.profileAvatar] || s.profileAvatar;
+  if (![...AVATARS, "custom"].includes(s.profileAvatar)) s.profileAvatar = "avatar-03";
+  if (typeof s.customAvatar !== "string" || !/^data:image\/(?:png|jpeg|webp);base64,/.test(s.customAvatar) || s.customAvatar.length > 180000) s.customAvatar = "";
+  if (s.profileAvatar === "custom" && !s.customAvatar) s.profileAvatar = "avatar-03";
   if (!cardStyles.includes(s.cardStyle)) s.cardStyle = "classic";
   return s;
 }
@@ -249,7 +254,7 @@ async function trackPresence(force = false) {
   const vocabOpen = $("#vocabularyView")?.classList.contains("active");
   const article = cardsOpen && cards.length ? currentCard()?.n || null : null;
   const activity = vocabOpen ? "vocabulary" : cardsOpen ? "article" : "online";
-  const signature = `${currentUser.id}:${activity}:${article || ""}:${state.profileAvatar}`;
+  const signature = `${currentUser.id}:${activity}:${article || ""}:${state.profileAvatar}:${state.customAvatar.length}`;
   if (!force && signature === lastPresenceSignature) return;
   lastPresenceSignature = signature;
   await realtimeChannel.track({
@@ -257,6 +262,7 @@ async function trackPresence(force = false) {
     article,
     activity,
     avatar: state.profileAvatar,
+    custom_avatar: state.profileAvatar === "custom" ? state.customAvatar : "",
     updated_at: new Date().toISOString(),
   });
 }
@@ -284,7 +290,7 @@ async function startRealtime() {
 }
 function renderAuthStatus() {
   if (currentUser) {
-    $("#authBtn").textContent = `${state.profileAvatar} Акаунт`;
+    $("#authBtn").innerHTML = `${avatarMarkup(state.profileAvatar, state.customAvatar, "nav-avatar")}<span>Акаунт</span>`;
     setCloudStatus("Прогрес синхронізується між пристроями");
     $("#signOutBtn").hidden = false;
     $("#authSubmit").hidden = true;
@@ -532,6 +538,12 @@ const safe = (s) =>
         c
       ],
   );
+function avatarMarkup(avatar = "avatar-03", customAvatar = "", extraClass = "") {
+  if (avatar === "custom" && customAvatar)
+    return `<img class="avatar-image ${safe(extraClass)}" src="${safe(customAvatar)}" alt="" />`;
+  const id = AVATARS.includes(avatar) ? avatar : "avatar-03";
+  return `<span class="avatar-art ${id} ${safe(extraClass)}" aria-hidden="true"></span>`;
+}
 function renderAccount() {
   const hard = Object.values(state.difficulty).filter(
     (x) => x === "hard",
@@ -546,12 +558,13 @@ function renderAccount() {
       : "Світла тема";
   $("#accountEmail").textContent =
     currentProfile?.display_name || "Гостьовий режим";
-  $("#accountAvatar").textContent = state.profileAvatar;
+  $("#accountAvatar").innerHTML = avatarMarkup(state.profileAvatar, state.customAvatar);
   $$("#avatarPicker [data-avatar]").forEach((button) => {
     const selected = button.dataset.avatar === state.profileAvatar;
     button.classList.toggle("active", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
+  $(".avatar-upload").classList.toggle("active", state.profileAvatar === "custom");
   $$("#cardStylePicker [data-card-style]").forEach((button) => {
     const selected = button.dataset.cardStyle === state.cardStyle;
     button.classList.toggle("active", selected);
@@ -581,8 +594,9 @@ function renderAccount() {
                 : presence
                   ? "Зараз на сайті"
                   : "";
-              const avatar = presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "👤");
-              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}"><b class="leader-rank">${i + 1}</b><span class="leader-avatar" aria-hidden="true">${safe(avatar)}</span><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
+              const avatar = presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
+              const customAvatar = presence?.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
+              return `<button class="leader-row${presence ? " is-online" : ""}" data-profile="${p.user_id}"><b class="leader-rank">${i + 1}</b><span class="leader-avatar" aria-hidden="true">${avatarMarkup(avatar, customAvatar)}</span><span class="leader-copy"><strong>${safe(p.display_name)}</strong><span class="leader-meta"><small>${p.learned_count} з 39 статей</small>${liveText ? `<span class="live-status"><i aria-hidden="true"></i>${liveText}</span>` : ""}</span></span><em>${p.learned_count}</em></button>`;
             },
           )
           .join("")
@@ -945,6 +959,39 @@ $("#avatarPicker").addEventListener("click", (e) => {
   lastPresenceSignature = "";
   save(false);
   renderAuthStatus();
+  trackPresence(true);
+});
+$("#avatarUpload").addEventListener("change", (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) {
+    alert("Оберіть зображення до 8 МБ.");
+    e.target.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const image = new Image();
+    image.onload = () => {
+      const side = Math.min(image.naturalWidth, image.naturalHeight);
+      const sx = (image.naturalWidth - side) / 2;
+      const sy = (image.naturalHeight - side) / 2;
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 192;
+      const context = canvas.getContext("2d");
+      context.drawImage(image, sx, sy, side, side, 0, 0, 192, 192);
+      state.customAvatar = canvas.toDataURL("image/webp", 0.78);
+      state.profileAvatar = "custom";
+      lastPresenceSignature = "";
+      save(false);
+      renderAuthStatus();
+      trackPresence(true);
+      e.target.value = "";
+    };
+    image.onerror = () => alert("Не вдалося прочитати це зображення.");
+    image.src = reader.result;
+  };
+  reader.readAsDataURL(file);
 });
 $("#cardStylePicker").addEventListener("click", (e) => {
   const button = e.target.closest("[data-card-style]");
@@ -959,8 +1006,9 @@ $("#leaderboardList").addEventListener("click", (e) => {
   if (!p) return;
   const rank = groupProfiles.indexOf(p) + 1;
   const presence = onlineStudy.get(p.user_id);
-  $("#profileAvatar").textContent =
-    presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "👤");
+  const profileAvatar = presence?.avatar || (p.user_id === currentUser?.id ? state.profileAvatar : "avatar-03");
+  const profileCustomAvatar = presence?.custom_avatar || (p.user_id === currentUser?.id ? state.customAvatar : "");
+  $("#profileAvatar").innerHTML = avatarMarkup(profileAvatar, profileCustomAvatar);
   $("#profileName").textContent = p.display_name;
   $("#profileRank").textContent = `№ ${rank}`;
   $("#profileLearned").textContent = `${p.learned_count} / 39`;
