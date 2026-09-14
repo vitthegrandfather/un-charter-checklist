@@ -2009,18 +2009,30 @@ button {
   gap: 8px;
 }
 .vocab-tools button {
-  min-height: 38px;
-  padding: 9px 13px;
-  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
-  border-radius: 9px;
-  background: transparent;
-  color: var(--muted);
-  font: 600 12px/1 Arial, sans-serif;
+  min-height: 42px;
+  padding: 10px 15px;
+  border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--card) 88%, var(--ink) 12%);
+  color: var(--ink);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--ink) 20%, transparent);
+  font: 700 12px/1 Arial, sans-serif;
+  transition: transform 120ms var(--ease-out), background 160ms ease, box-shadow 120ms var(--ease-out);
 }
 .vocab-tools button:hover {
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  background: color-mix(in srgb, var(--card) 78%, var(--ink) 22%);
   color: var(--ink);
 }
+.vocab-tools button:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+[data-theme="dark"] .vocab-tools button {
+  background: #30352f;
+  border-color: #50574f;
+  box-shadow: 0 2px 0 #151815;
+}
+[data-theme="dark"] .vocab-tools button:hover { background: #394039; }
 #vocabReset:hover { color: var(--red); }
 @media (max-width: 720px) {
   .vocab-tools {
